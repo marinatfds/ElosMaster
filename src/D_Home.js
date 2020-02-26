@@ -10,7 +10,6 @@ export default function Home() {
   const onCreateAlert = React.useCallback(function(event) {
     event.preventDefault();
     const content = event.target.elements.alertContent.value;
-    console.log(event.target.elements);
     setAlerts(prevAlerts => [
       {
         date: new Date().toLocaleString(),
@@ -50,7 +49,7 @@ export default function Home() {
         <ol className="orderedList">
           {alerts.map(function(item) {
             return (
-              <li>
+              <li key={item.date}>
                 [ {item.date} ] {item.content}
               </li>
             );
