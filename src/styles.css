@@ -1,0 +1,26 @@
+.App {
+  font-family: Verdana;
+  text-align: center;
+}
+
+.menuButton {
+  font-family: Verdana;
+  text-align: center;
+  padding: 15px;
+  background-color: #a83234;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.alertButton {
+  font-family: Verdana;
+  text-align: center;
+  padding: 5px;
+  background-color: #a83234;
+  color: #ffffff;
+}
+
+.orderedList {
+  list-style: none;
+  text-align: left;
+}
