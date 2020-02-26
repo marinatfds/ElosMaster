@@ -1,12 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./styles.css";
-import Home from "./Home";
-import Coord from "./Coord";
+import Home from "./D_Home";
+import Coord from "./D_Coord";
 
 const rootElement = document.getElementById("root");
 const componentForRoute = {
-  "/home": <Home />,
+  "/": <Home />,
   "/coord": <Coord />
 };
 

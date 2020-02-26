@@ -8,9 +8,14 @@
   text-align: center;
 }
 
-.menuAlign {
+.menuButtonsAlign {
   display: flex;
   justify-content: space-around;
+}
+
+.alertButtonsAlign {
+  display: flex;
+  justify-content: space-between;
 }
 
 .menuButton {
@@ -22,6 +27,11 @@
   background-color: #a83234;
   color: #ffffff;
   font-weight: bold;
+}
+
+.PopupInput {
+  font-family: Verdana;
+  width: 1000px;
 }
 
 .alertButton {
