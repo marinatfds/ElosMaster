@@ -5,9 +5,9 @@ import Home from "./Home";
 import Coord from "./Coord";
 
 const rootElement = document.getElementById("root");
+const componentForRoute = {
+  "/home": <Home />,
+  "/coord": <Coord />
+};
 
-if (document.location.pathname === "/coord") {
-  ReactDOM.render(<Coord />, rootElement);
-} else {
-  ReactDOM.render(<Home />, rootElement);
-}
+ReactDOM.render(componentForRoute[document.location.pathname], rootElement);

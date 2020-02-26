@@ -9,23 +9,23 @@ export default function Home() {
     const { value } = event.target;
 
     if (event.key === "Enter" && value) {
-      const object = {
+      const objectValue = {
         date: new Date().toLocaleString(),
         content: value
       };
-      setAlerts(prevAlerts => [object, ...prevAlerts]);
+      setAlerts(prevAlerts => [objectValue, ...prevAlerts]);
       event.target.value = "";
     }
   }, []);
 
   return (
-    <div className="App">
+    <div className="home">
       <h1>Elos Master</h1>
-      <div>
+      <div className="menuAlign">
         <MenuButton>Fichas</MenuButton>
         <MenuButton>Calendário</MenuButton>
       </div>
-      <div>
+      <div className="menuAlign">
         <MenuButton to="/coord">Coordenação</MenuButton>
         <MenuButton>Tesouraria</MenuButton>
       </div>
