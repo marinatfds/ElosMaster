@@ -19,10 +19,12 @@ export default function Home() {
     ]);
   }, []);
 
-  const togglePopup = React.useCallback(function() {
-    setShowPopup(function(prevShowPopup) {
-      return !prevShowPopup;
-    });
+  const openPopup = React.useCallback(function() {
+    setShowPopup(true);
+  }, []);
+
+  const closePopup = React.useCallback(function() {
+    setShowPopup(false);
   }, []);
 
   return (
@@ -30,21 +32,19 @@ export default function Home() {
       <h1>Elos Master</h1>
       <div className="menuButtonsAlign">
         <MenuButton>Fichas</MenuButton>
-        <MenuButton>Calendário</MenuButton>
+        <MenuButton to="/calendar">Calendário</MenuButton>
       </div>
       <div className="menuButtonsAlign">
         <MenuButton to="/coord">Coordenação</MenuButton>
-        <MenuButton>Tesouraria</MenuButton>
+        <MenuButton to="/tresure">Tesouraria</MenuButton>
       </div>
       <div className="alertButtonsAlign">
         Alertas:
-        <AlertButton onClick={togglePopup}>Criar</AlertButton>
+        <AlertButton onClick={openPopup}>Criar</AlertButton>
       </div>
-      {showPopup && <PopupAlerts onSubmit={onCreateAlert} />}
-      {/* <div className="menuButtonsAlign">
-        <input className="homeInput" onKeyDown={keyDownHandler} />
-        <AlertButton>Criar</AlertButton> 
-      </div> */}
+      {showPopup && (
+        <PopupAlerts onClose={closePopup} onSubmit={onCreateAlert} />
+      )}
       {alerts.length > 0 && (
         <ol className="orderedList">
           {alerts.map(function(item) {

@@ -7,11 +7,11 @@ export default function Coord() {
     <div className="coord">
       <h1>Coordenação</h1>
       <div className="menuButtonsAlign">
-        <MenuButton>Geral</MenuButton>
+        <MenuButton to="/student">Alunos</MenuButton>
         <MenuButton>Reuniões</MenuButton>
       </div>
       <div className="menuButtonsAlign">
-        <MenuButton>Simulados</MenuButton>
+        <MenuButton to="/test">Simulados</MenuButton>
         <MenuButton>Processo Seletivo</MenuButton>
       </div>
       <div className="menuButtonsAlign">
