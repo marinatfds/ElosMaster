@@ -16,7 +16,7 @@ export default function Coord() {
       </div>
       <div className="menuButtonsAlign">
         <MenuButton>Ciranda de Livro</MenuButton>
-        <MenuButton>Antigos</MenuButton>
+        <MenuButton to="/old">Antigos</MenuButton>
       </div>
       <div>
         <NavigationButton to="/">Voltar</NavigationButton>

@@ -31,7 +31,7 @@ export default function Home() {
     <div className="home">
       <h1>Elos Master</h1>
       <div className="menuButtonsAlign">
-        <MenuButton>Fichas</MenuButton>
+        <MenuButton to="/sheet">Fichas</MenuButton>
         <MenuButton to="/calendar">Calendário</MenuButton>
       </div>
       <div className="menuButtonsAlign">
