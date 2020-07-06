@@ -31,16 +31,16 @@ export default function Home() {
     <div className="home">
       <h1>Elos Master</h1>
       <div className="menuButtonsAlign">
-        <MenuButton to="/sheet">Fichas</MenuButton>
+        <MenuButton to="/student">Alunos</MenuButton>
         <MenuButton to="/calendar">Calendário</MenuButton>
       </div>
       <div className="menuButtonsAlign">
-        <MenuButton to="/coord">Coordenação</MenuButton>
+        <MenuButton to="/test">Simulados</MenuButton>
         <MenuButton to="/tresure">Tesouraria</MenuButton>
       </div>
       <div className="alertButtonsAlign">
         Alertas:
-        <AlertButton onClick={openPopup}>Criar</AlertButton>
+        <AlertButton onClick={openPopup}>Novo Alerta</AlertButton>
       </div>
       {showPopup && (
         <PopupAlerts onClose={closePopup} onSubmit={onCreateAlert} />

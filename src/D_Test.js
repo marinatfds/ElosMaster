@@ -23,7 +23,7 @@ export default function Test() {
         <MenuButton>Simulado 8</MenuButton>
       </div>
       <div>
-        <NavigationButton to="/coord">Voltar</NavigationButton>
+        <NavigationButton to="/">Voltar</NavigationButton>
       </div>
     </div>
   );

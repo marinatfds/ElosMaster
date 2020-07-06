@@ -15,7 +15,7 @@ export default function Student() {
         <MenuButton>Alunos PUC</MenuButton>
       </div>
       <div>
-        <NavigationButton to="/coord">Voltar</NavigationButton>
+        <NavigationButton to="/">Voltar</NavigationButton>
       </div>
     </div>
   );
