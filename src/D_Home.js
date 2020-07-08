@@ -1,5 +1,7 @@
 import React from "react";
+import { Logo } from "./C_Logo";
 import { MenuButton } from "./C_MenuButton";
+import { MenuLink } from "./C_MenuLink";
 import { AlertButton } from "./C_AlertButton";
 import PopupAlerts from "./P_Alerts";
 
@@ -25,18 +27,20 @@ export default function Home() {
 
   const closePopup = React.useCallback(function() {
     setShowPopup(false);
-  }, []);
+    }, []);
 
   return (
     <div className="home">
-      <h1>Elos Master</h1>
-      <div className="menuButtonsAlign">
-        <MenuButton to="/student">Alunos</MenuButton>
-        <MenuButton to="/calendar">Calendário</MenuButton>
+      <div className="header">
+        <Logo to="/"/>
       </div>
-      <div className="menuButtonsAlign">
-        <MenuButton to="/test">Simulados</MenuButton>
-        <MenuButton to="/tresure">Tesouraria</MenuButton>
+      <div className="navbar">
+        <h1 className="menuButtonsAlign">
+            <MenuLink to="/student">Alunos</MenuLink>
+            <MenuLink to="/calendar">Calendário</MenuLink>
+            <MenuLink to="/test">Simulados</MenuLink>
+            <MenuLink to="/tresure">Tesouraria</MenuLink>
+        </h1>
       </div>
       <div className="alertButtonsAlign">
         Alertas:

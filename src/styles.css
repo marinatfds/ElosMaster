@@ -6,11 +6,43 @@ body {
   margin: 0;
 }
 
+.logo {
+    display: flex;
+    justify-content: center;
+    height: 118px;
+    width: 179px;
+}
+
+.header {
+    padding: 18px;
+    text-align: center;
+    background: #e3e3e3;
+}
+
+.navbar {
+    display: flex;
+    background-color: #a83234;
+    font-size: 8px;
+}
+
+/* Style the navigation bar links */
+.navbar a {
+    color: white;
+    padding: 3px 15px;
+    text-decoration: none;
+    text-align: center;
+}
+
+/* Change color on hover */
+    .navbar a:hover {
+        background-color: #e3e3e3;
+        color: #a83234;
+    }
+
 .home {
   font-family: Verdana;
   text-align: center;
   position: relative;
-  height: 100vh;
 }
 
 .coord {
@@ -39,8 +71,10 @@ body {
 }
 
 .menuButtonsAlign {
-  display: flex;
-  justify-content: space-around;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: space-between;
 }
 
 .alertButtonsAlign {
@@ -51,8 +85,8 @@ body {
 .menuButton {
   font-family: Verdana;
   text-align: center;
-  padding: 15px;
-  width: 200px;
+  padding: 10px;
+  width: 120px;
   margin: 10px;
   background-color: #a83234;
   color: #ffffff;
