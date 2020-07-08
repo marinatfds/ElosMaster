@@ -34,32 +34,37 @@ export default function Home() {
       <div className="header">
         <Logo to="/"/>
       </div>
-      <div className="navbar">
-        <h1 className="menuButtonsAlign">
+      <div className="navigationBar">
             <MenuLink to="/student">Alunos</MenuLink>
             <MenuLink to="/calendar">Calendário</MenuLink>
             <MenuLink to="/test">Simulados</MenuLink>
             <MenuLink to="/tresure">Tesouraria</MenuLink>
-        </h1>
+      </div> 
+      <div className="row">
+        <div className="side">
+            <div className="alertButtonsAlign">
+            Últimas notícias:
+            <AlertButton onClick={openPopup}>Novo Alerta</AlertButton>
+            </div>
+        {showPopup && (
+            <PopupAlerts onClose={closePopup} onSubmit={onCreateAlert} />
+        )}
+        {alerts.length > 0 && (
+            <ol className="orderedList">
+            {alerts.map(function(item) {
+                return (
+                <li key={item.date}>
+                    [ {item.date} ] {item.content}
+                </li>
+                );
+            })}
+            </ol>
+        )}
+        </div>
+        <div className="main">
+            Main
+        </div>
       </div>
-      <div className="alertButtonsAlign">
-        Alertas:
-        <AlertButton onClick={openPopup}>Novo Alerta</AlertButton>
-      </div>
-      {showPopup && (
-        <PopupAlerts onClose={closePopup} onSubmit={onCreateAlert} />
-      )}
-      {alerts.length > 0 && (
-        <ol className="orderedList">
-          {alerts.map(function(item) {
-            return (
-              <li key={item.date}>
-                [ {item.date} ] {item.content}
-              </li>
-            );
-          })}
-        </ol>
-      )}
     </div>
   );
 }

@@ -19,25 +19,47 @@ body {
     background: #e3e3e3;
 }
 
-.navbar {
+.navigationBar {
     display: flex;
     background-color: #a83234;
-    font-size: 8px;
+    font-size: 15px;
+    font-style: italic;
 }
 
 /* Style the navigation bar links */
-.navbar a {
+.navigationBar a {
     color: white;
-    padding: 3px 15px;
+    padding: 15px 15px;
     text-decoration: none;
     text-align: center;
 }
 
 /* Change color on hover */
-    .navbar a:hover {
+    .navigationBar a:hover {
         background-color: #e3e3e3;
         color: #a83234;
     }
+
+/* Column container */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Create two unequal columns that sits next to each other */
+/* Sidebar/left column */
+.side {
+    flex: 20%;
+    background-color: #e3e3e3;
+    padding: 20px;
+}
+
+/* Main column */
+.main {
+    flex: 70%;
+    background-color: white;
+    padding: 20px;
+}
 
 .home {
   font-family: Verdana;
@@ -78,8 +100,9 @@ body {
 }
 
 .alertButtonsAlign {
-  display: flex;
-  justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .menuButton {

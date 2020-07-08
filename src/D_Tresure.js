@@ -1,13 +1,20 @@
 import React from "react";
+import { Logo } from "./C_Logo";
+import { MenuLink } from "./C_MenuLink";
 import { NavigationButton } from "./C_NavigationButton";
 /*import { MenuButton } from "./C_MenuButton";*/
 
 export default function Tresure() {
   return (
     <div className="tresure">
-      <h1>Tesouraria</h1>
-      <div>
-        <NavigationButton to="/">Voltar</NavigationButton>
+      <div className="header">
+        <Logo to="/"/>
+      </div>
+      <div className="navigationBar">
+            <MenuLink to="/student">Alunos</MenuLink>
+            <MenuLink to="/calendar">Calendário</MenuLink>
+            <MenuLink to="/test">Simulados</MenuLink>
+            <MenuLink to="/tresure">Tesouraria</MenuLink>
       </div>
     </div>
   );
