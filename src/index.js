@@ -6,6 +6,7 @@ import Calendar from "./D_Calendar";
 import Tresure from "./D_Tresure";
 import Student from "./D_Student";
 import Test from "./D_Test";
+import Team from "./D_Team";
 
 const rootElement = document.getElementById("root");
 const componentForRoute = {
@@ -13,7 +14,8 @@ const componentForRoute = {
   "/calendar": <Calendar />,
   "/tresure": <Tresure />,
   "/student": <Student />,
-  "/test": <Test />
+  "/test": <Test />,
+  "/team": <Team />
 };
 
 ReactDOM.render(componentForRoute[document.location.pathname], rootElement);

@@ -1,7 +1,9 @@
 import React from "react";
 import { Logo } from "./C_Logo";
-import { MenuButton } from "./C_MenuButton";
+//import { FacebookIcon } from "./C_FacebookIcon";
+//import { InstagramIcon } from "./C_InstagramIcon";
 import { MenuLink } from "./C_MenuLink";
+import { MenuButton } from "./C_MenuButton";
 import { AlertButton } from "./C_AlertButton";
 import PopupAlerts from "./P_Alerts";
 
@@ -36,6 +38,7 @@ export default function Home() {
       </div>
       <div className="navigationBar">
             <MenuLink to="/student">Alunos</MenuLink>
+            <MenuLink to="/team">Equipe</MenuLink>
             <MenuLink to="/calendar">Calendário</MenuLink>
             <MenuLink to="/test">Simulados</MenuLink>
             <MenuLink to="/tresure">Tesouraria</MenuLink>
@@ -62,7 +65,7 @@ export default function Home() {
         )}
         </div>
         <div className="main">
-            Main
+            <i>"Nenhum de nós é tão bom quanto todos nós juntos!"</i>
         </div>
       </div>
     </div>
