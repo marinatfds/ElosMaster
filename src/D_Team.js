@@ -11,7 +11,7 @@ export default function About() {
       <div className="navigationBar">
             <MenuLink to="/student">Alunos</MenuLink>
             <MenuLink to="/team">Equipe</MenuLink>
-            <MenuLink to="/calendar">Calendário</MenuLink>
+            <MenuLink to="/calendar">Calend&aacute;rio</MenuLink>
             <MenuLink to="/test">Simulados</MenuLink>
             <MenuLink to="/tresure">Tesouraria</MenuLink>
       </div>

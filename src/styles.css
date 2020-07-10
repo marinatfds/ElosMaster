@@ -13,23 +13,20 @@ body {
 }
 
 .icon {
-    order: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    height: 25px;
-    width: 25px;
-    align-content: space-between;
+    width: 32px;
 }
 
 .header {
     padding: 18px;
     text-align: center;
     background: #e3e3e3;
-}
+    }
 
 .navigationBar {
+    height: 48px;
     display: flex;
+    justify-content: space-between;
+    align-items: center;
     background-color: #a83234;
     font-size: 15px;
     font-style: italic;
@@ -40,10 +37,8 @@ body {
     color: white;
     padding: 15px 15px;
     text-decoration: none;
-    text-align: center;
 }
 
-/* Change color on hover */
     .navigationBar a:hover {
         background-color: #e3e3e3;
         color: #a83234;
@@ -55,17 +50,15 @@ body {
     flex-wrap: wrap;
 }
 
-/* Create two unequal columns that sits next to each other */
 /* Sidebar/left column */
 .side {
-    flex: 20%;
+    width: 30%;
     background-color: #e3e3e3;
     padding: 20px;
 }
 
 /* Main column */
 .main {
-    flex: 70%;
     background-color: white;
     padding: 20px;
 }
@@ -147,6 +140,7 @@ body {
 .orderedList {
   list-style: none;
   text-align: left;
+  word-break: break-word;
 }
 
 .popupAlerts {
@@ -197,5 +191,8 @@ body {
 @media screen and (max-width: 700px) {
     .row, .navbar {
         flex-direction: column;
+    }
+    .side {
+        width: initial;
     }
 }

@@ -1,7 +1,8 @@
 import React from "react";
 import { Logo } from "./C_Logo";
-//import { FacebookIcon } from "./C_FacebookIcon";
-//import { InstagramIcon } from "./C_InstagramIcon";
+import { FacebookIcon } from "./C_FacebookIcon";
+import { InstagramIcon } from "./C_InstagramIcon";
+import { TwitterIcon } from "./C_TwitterIcon";
 import { MenuLink } from "./C_MenuLink";
 import { MenuButton } from "./C_MenuButton";
 import { AlertButton } from "./C_AlertButton";
@@ -37,11 +38,18 @@ export default function Home() {
         <Logo to="/"/>
       </div>
       <div className="navigationBar">
+        <div>
             <MenuLink to="/student">Alunos</MenuLink>
             <MenuLink to="/team">Equipe</MenuLink>
-            <MenuLink to="/calendar">Calendário</MenuLink>
+            <MenuLink to="/calendar">Calend&aacute;rio</MenuLink>
             <MenuLink to="/test">Simulados</MenuLink>
             <MenuLink to="/tresure">Tesouraria</MenuLink>
+        </div>
+        <div>
+            <FacebookIcon to="https://www.facebook.com/ElosEduca"/>
+            <TwitterIcon to="#"/>
+            <InstagramIcon to="https://www.instagram.com/eloseducacao/"/>
+        </div>
       </div> 
       <div className="row">
         <div className="side">
