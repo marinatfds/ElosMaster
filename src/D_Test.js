@@ -1,22 +1,13 @@
 import React from "react";
-import { Logo } from "./C_Logo";
-import { MenuLink } from "./C_MenuLink";
-import { MenuButton } from "./C_MenuButton";
-import { NavigationButton } from "./C_NavigationButton";
+import { HeaderLogo } from "./component_area/C_HeaderLogo";
+import { MainMenu } from "./component_area/C_MainMenu";
+import { MenuButton } from "./component_obj/C_MenuButton";
 
 export default function Test() {
   return (
     <div className="test">
-      <div className="header">
-        <Logo to="/"/>
-      </div>
-      <div className="navigationBar">
-            <MenuLink to="/student">Alunos</MenuLink>
-            <MenuLink to="/team">Equipe</MenuLink>
-            <MenuLink to="/calendar">Calend&aacute;rio</MenuLink>
-            <MenuLink to="/test">Simulados</MenuLink>
-            <MenuLink to="/tresure">Tesouraria</MenuLink>
-      </div>
+      <HeaderLogo/>
+      <MainMenu/>
       <div>
         <MenuButton>Simulado 1</MenuButton>
         <MenuButton>Simulado 2</MenuButton>

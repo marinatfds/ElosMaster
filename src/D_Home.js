@@ -1,11 +1,7 @@
 import React from "react";
-import { Logo } from "./C_Logo";
-import { FacebookIcon } from "./C_FacebookIcon";
-import { InstagramIcon } from "./C_InstagramIcon";
-import { TwitterIcon } from "./C_TwitterIcon";
-import { MenuLink } from "./C_MenuLink";
-import { MenuButton } from "./C_MenuButton";
-import { AlertButton } from "./C_AlertButton";
+import { HeaderLogo } from "./component_area/C_HeaderLogo";
+import { MainMenu } from "./component_area/C_MainMenu";
+import { AlertButton } from "./component_obj/C_AlertButton";
 import PopupAlerts from "./P_Alerts";
 
 export default function Home() {
@@ -34,23 +30,8 @@ export default function Home() {
 
   return (
     <div className="home">
-      <div className="header">
-        <Logo to="/"/>
-      </div>
-      <div className="navigationBar">
-        <div>
-            <MenuLink to="/student">Alunos</MenuLink>
-            <MenuLink to="/team">Equipe</MenuLink>
-            <MenuLink to="/calendar">Calend&aacute;rio</MenuLink>
-            <MenuLink to="/test">Simulados</MenuLink>
-            <MenuLink to="/tresure">Tesouraria</MenuLink>
-        </div>
-        <div>
-            <FacebookIcon to="https://www.facebook.com/ElosEduca"/>
-            <TwitterIcon to="#"/>
-            <InstagramIcon to="https://www.instagram.com/eloseducacao/"/>
-        </div>
-      </div> 
+      <HeaderLogo/>
+      <MainMenu/>
       <div className="row">
         <div className="side">
             <div className="alertButtonsAlign">
