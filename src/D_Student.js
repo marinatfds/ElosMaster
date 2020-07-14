@@ -5,8 +5,8 @@ import { MenuButton } from "./component_obj/C_MenuButton";
 import FileViewer from 'react-file-viewer';
 
 export default function Student() {
-const file = "https://drive.google.com/file/d/0BzMVDwJw-KJpNlBwUFZEUExMeVE/view?usp=sharing"
-const type = "pdf"
+const file = "https://drive.google.com/file/d/0BzMVDwJw-KJpbjB0Qy01cUs5Q2s/view?usp=sharing"
+const type = "docx"
   return (
     <div className="student">
       <HeaderLogo/>

@@ -44,6 +44,10 @@ body {
         color: #a83234;
     }
 
+.navigationBar p {
+    padding: 15px 15px;
+}
+
 /* Column container */
 .row {
     display: flex;
@@ -145,12 +149,12 @@ body {
 
 .popupAlerts {
   position: absolute;
-  top: 15%;
-  left: 15%;
+  top: 50%;
+  left: 35%;
   height: 165px;
   border: 1px solid black;
   background-color: white;
-  width: 70%;
+  width: 30%;
 }
 
 .alertForm {

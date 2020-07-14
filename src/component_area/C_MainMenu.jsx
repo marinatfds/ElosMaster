@@ -1,8 +1,9 @@
 import React from "react";
 import { MenuLink } from "../component_obj/C_MenuLink";
-import { FacebookIcon } from "../component_obj/C_FacebookIcon";
-import { InstagramIcon } from "../component_obj/C_InstagramIcon";
-import { TwitterIcon } from "../component_obj/C_TwitterIcon";
+import { FacebookIcon } from "../component_obj/C_IconFacebook";
+import { InstagramIcon } from "../component_obj/C_IconInstagram";
+import { TwitterIcon } from "../component_obj/C_IconTwitter";
+import { YoutubeIcon } from "../component_obj/C_IconYoutube";
 
 export function MainMenu({ children }) {
   return (
@@ -18,6 +19,7 @@ export function MainMenu({ children }) {
             <FacebookIcon to="https://www.facebook.com/ElosEduca"/>
             <TwitterIcon to="#"/>
             <InstagramIcon to="https://www.instagram.com/eloseducacao/"/>
+            <YoutubeIcon to="https://www.youtube.com/channel/UCC-t9-M_T_h3x5BtUNm4H7w"/>
         </div>
       </div> 
   );
