@@ -4,6 +4,16 @@ import { MainMenu } from "./component_area/C_MainMenu";
 import { AlertButton } from "./component_obj/C_AlertButton";
 import PopupAlerts from "./P_Alerts";
 
+function postAlert(item) {
+    fetch("http://localhost:5000/api/createAlert", {
+        mode: "cors", method: "POST", headers: { "Content-Type": "application/json" } , body: JSON.stringify(
+            {
+                Alert: item.content,
+                DateTime: item.date.toISOString()
+            })
+    }); 
+}
+
 export default function Home() {
   const [alerts, setAlerts] = React.useState([]);
   const [showPopup, setShowPopup] = React.useState(false);
@@ -11,21 +21,38 @@ export default function Home() {
   const onCreateAlert = React.useCallback(function(event) {
     event.preventDefault();
     const content = event.target.elements.alertContent.value;
+    const item = {
+          date: new Date(),
+          content
+      };
+    postAlert(item);
     setAlerts(prevAlerts => [
-      {
-        date: new Date().toLocaleString(),
-        content
-      },
+      item,
       ...prevAlerts
     ]);
   }, []);
 
   const openPopup = React.useCallback(function() {
-    setShowPopup(true);
+      setShowPopup(true);
   }, []);
 
   const closePopup = React.useCallback(function() {
     setShowPopup(false);
+  }, []);
+
+    React.useEffect(function () {
+        async function fetchData() {
+            const response = await fetch("http://localhost:5000/api/getAlerts", { mode: "cors" });
+            const data = await response.json();
+            const formattedData = data.map(function (item) {
+                return {
+                    date: new Date(item.DateTime),
+                    content: item.Alert
+                }
+            })
+            setAlerts(formattedData);
+        }
+        fetchData();
     }, []);
 
   return (
@@ -46,7 +73,7 @@ export default function Home() {
             {alerts.map(function(item) {
                 return (
                 <li key={item.date}>
-                    [ {item.date} ] {item.content}
+                    [ {item.date.toLocaleString()} ] {item.content}
                 </li>
                 );
             })}

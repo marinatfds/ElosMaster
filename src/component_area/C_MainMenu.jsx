@@ -8,18 +8,18 @@ import { YoutubeIcon } from "../component_obj/C_IconYoutube";
 export function MainMenu({ children }) {
   return (
       <div className="navigationBar">
-        <div>
+        <nav>
             <MenuLink to="/student">Alunos</MenuLink>
             <MenuLink to="/team">Equipe</MenuLink>
             <MenuLink to="/calendar">Calend&aacute;rio</MenuLink>
             <MenuLink to="/test">Simulados</MenuLink>
             <MenuLink to="/tresure">Tesouraria</MenuLink>
-        </div>
+        </nav>
         <div>
             <FacebookIcon to="https://www.facebook.com/ElosEduca"/>
             <TwitterIcon to="#"/>
             <InstagramIcon to="https://www.instagram.com/eloseducacao/"/>
-            <YoutubeIcon to="https://www.youtube.com/channel/UCC-t9-M_T_h3x5BtUNm4H7w"/>
+            <YoutubeIcon to="https://www.youtube.com/channel/UCC-t9-M_T_h3x5BtUNm4H7w" />
         </div>
       </div> 
   );

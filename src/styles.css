@@ -17,14 +17,17 @@ body {
 }
 
 .header {
+    height: 154px;
     padding: 18px;
+    box-sizing: border-box;
     text-align: center;
     background: #e3e3e3;
     }
 
 .navigationBar {
-    height: 48px;
     display: flex;
+    flex-wrap: wrap;
+    height: 48px;
     justify-content: space-between;
     align-items: center;
     background-color: #a83234;
@@ -39,14 +42,11 @@ body {
     text-decoration: none;
 }
 
-    .navigationBar a:hover {
+    .navigationBarInternalLink:hover {
         background-color: #e3e3e3;
         color: #a83234;
     }
 
-.navigationBar p {
-    padding: 15px 15px;
-}
 
 /* Column container */
 .row {
@@ -58,13 +58,14 @@ body {
 .side {
     width: 30%;
     background-color: #e3e3e3;
-    padding: 20px;
+    padding: 20px 20px 90%;
+    position: relative;
 }
 
 /* Main column */
 .main {
     background-color: white;
-    padding: 20px;
+    padding: 20px 20px 90%;
 }
 
 .home {
@@ -84,6 +85,8 @@ body {
 }
 
 .tresure {
+  display: flex;
+  flex-direction: column;
   font-family: Verdana;
   text-align: center;
 }
@@ -149,8 +152,8 @@ body {
 
 .popupAlerts {
   position: absolute;
-  top: 50%;
-  left: 35%;
+  top: 5px;
+  left: 150px;
   height: 165px;
   border: 1px solid black;
   background-color: white;
@@ -193,6 +196,10 @@ body {
 
 
 @media screen and (max-width: 700px) {
+    .navigationBar {
+        height: 80px;
+        justify-content: center;
+    }
     .row, .navbar {
         flex-direction: column;
     }
