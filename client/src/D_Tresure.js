@@ -6,6 +6,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TablePagination,
   TableRow,
@@ -104,10 +105,12 @@ export default function Tresure() {
       <HeaderLogo />
       <MainMenu />
       <div className="tresureNewExpense">
-        <AlertButton>Novo Gasto</AlertButton>
+        <a href="/tresure/newexpense">
+          <AlertButton>Novo Gasto</AlertButton>
+        </a>
       </div>
-      <div style={{ flexShrink: 1 }}>
-        <Table aria-label="sticky table">
+      <TableContainer className="tableTresure">
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               {columns.map((column) => (
@@ -134,10 +137,6 @@ export default function Tresure() {
                   >
                     {column.label}
                   </TableSortLabel>
-
-                  {/* <button id={column.id} onClick={orderData}>
-                    {orderRowState.type}
-                  </button> */}
                 </TableCell>
               ))}
             </TableRow>
@@ -168,7 +167,7 @@ export default function Tresure() {
           onChangePage={handleChangePage}
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
-      </div>
+      </TableContainer>
     </div>
   );
 }
