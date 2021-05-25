@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\client"
+    "\\client",
+    "\\client\\src"
   ],
+  "SelectedNode": "\\client\\src\\D_Tresure.js",
   "PreviewInSolutionExplorer": false
 }

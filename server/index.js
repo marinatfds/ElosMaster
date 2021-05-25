@@ -14,19 +14,27 @@ sql
     app.use(Cors());
     const getAlerts = require("./api/getAlerts");
     const getAlert = require("./api/getAlert");
-    const createAlert = require("./api/createAlert");
-    const editAlert = require("./api/editAlert");
     const getCharges = require("./api/getCharges");
     const getCharge = require("./api/getCharge");
+
+    const createAlert = require("./api/createAlert");
     const createCharge = require("./api/createCharge");
+    const createPresence = require("./api/createPresence");
+    const createTest = require("./api/createTest");
+
+    const editAlert = require("./api/editAlert");
 
     router.get("/api/getAlerts", getAlerts);
     router.get("/api/getAlert", getAlert);
-    router.post("/api/createAlert", createAlert);
-    router.patch("/api/editAlert", editAlert);
     router.get("/api/getCharges", getCharges);
     router.get("/api/getCharge", getCharge);
+
+    router.post("/api/createAlert", createAlert);
     router.post("/api/createCharge", createCharge);
+    router.post("/api/createPresence", createPresence);
+    router.post("/api/createTest", createTest);
+
+    router.patch("/api/editAlert", editAlert);
 
     app.use(router.routes()).use(router.allowedMethods());
 
