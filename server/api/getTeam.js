@@ -1,9 +1,11 @@
 const sql = require("mssql");
 
-function getCharges(ctx) {
+function getTeam(ctx) {
   const sqlRequest = new sql.Request();
-  const sqlQuery =
-    "SELECT Expense_Type, Description, Author, Value, DateTime_Payment FROM Tresure ORDER BY DateTime_Payment DESC";
+
+  const sqlQuery = "SELECT Name, Campus, Position, Email, Phone FROM Team ORDER BY Name";
+
+  console.log(sqlQuery);
 
   return sqlRequest
     .query(sqlQuery)
@@ -15,4 +17,4 @@ function getCharges(ctx) {
     });
 }
 
-module.exports = getCharges;
+module.exports = getTeam;

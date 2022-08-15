@@ -3,7 +3,7 @@ const sql = require("mssql");
 function getAlerts(ctx) {
   const sqlRequest = new sql.Request();
 
-  const sqlQuery = "SELECT Alert, DateTime, ID FROM Alerts";
+  const sqlQuery = "SELECT Alert, DateTime FROM Alerts";
 
   return sqlRequest
     .query(sqlQuery)

@@ -10,12 +10,15 @@ sql
 
     const app = new Koa();
     const router = new Router();
+
     app.use(bodyParser());
     app.use(Cors());
+
     const getAlerts = require("./api/getAlerts");
     const getAlert = require("./api/getAlert");
     const getCharges = require("./api/getCharges");
     const getCharge = require("./api/getCharge");
+    const getTeam = require("./api/getTeam");
 
     const createAlert = require("./api/createAlert");
     const createCharge = require("./api/createCharge");
@@ -28,6 +31,7 @@ sql
     router.get("/api/getAlert", getAlert);
     router.get("/api/getCharges", getCharges);
     router.get("/api/getCharge", getCharge);
+    router.get("/api/getTeam", getTeam);
 
     router.post("/api/createAlert", createAlert);
     router.post("/api/createCharge", createCharge);
@@ -38,7 +42,9 @@ sql
 
     app.use(router.routes()).use(router.allowedMethods());
 
-    app.listen(5000);
+    app.listen(5000, () => {
+      console.log(`Server listening http://127.0.0.1:${5000}/`);
+    });
   })
   .catch((err) => {
     console.log(err);
