@@ -84,32 +84,49 @@ export function Home() {
   const canCreateAlert = user?.role === "admin" || user?.role === "treinador";
 
   return (
-    <Box sx={{ p: 4, maxWidth: 640, mx: "auto" }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Typography variant="h5">Últimas notícias</Typography>
-        {canCreateAlert && (
-          <Button variant="contained" onClick={() => setDialogOpen(true)}>
-            Novo alerta
-          </Button>
+    <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+      <Box sx={{ width: { xs: "100%", sm: "30%" }, bgcolor: "#e3e3e3", p: "20px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          Últimas notícias:
+          {canCreateAlert && (
+            <Button
+              variant="contained"
+              size="small"
+              sx={{ bgcolor: "#a83234 !important" }}
+              onClick={() => setDialogOpen(true)}
+            >
+              Novo Alerta
+            </Button>
+          )}
+        </Box>
+
+        {alertsQuery.isLoading && <Typography color="text.secondary">Carregando...</Typography>}
+        {alertsQuery.isError && <Typography color="error">Não foi possível carregar os alertas.</Typography>}
+        {alertsQuery.data?.length === 0 && (
+          <Typography color="text.secondary">Nenhum alerta publicado ainda.</Typography>
         )}
+
+        <List>
+          {alertsQuery.data?.map((alert) => (
+            <ListItem key={alert.id} alignItems="flex-start">
+              <ListItemAvatar>
+                <Avatar>{alert.message.charAt(0).toUpperCase()}</Avatar>
+              </ListItemAvatar>
+              <ListItemText primary={formatDateTime(alert.createdAt)} secondary={alert.message} />
+            </ListItem>
+          ))}
+        </List>
       </Box>
 
-      {alertsQuery.isLoading && <Typography color="text.secondary">Carregando...</Typography>}
-      {alertsQuery.isError && <Typography color="error">Não foi possível carregar os alertas.</Typography>}
-      {alertsQuery.data?.length === 0 && (
-        <Typography color="text.secondary">Nenhum alerta publicado ainda.</Typography>
-      )}
-
-      <List>
-        {alertsQuery.data?.map((alert) => (
-          <ListItem key={alert.id} alignItems="flex-start">
-            <ListItemAvatar>
-              <Avatar>{alert.message.charAt(0).toUpperCase()}</Avatar>
-            </ListItemAvatar>
-            <ListItemText primary={alert.message} secondary={formatDateTime(alert.createdAt)} />
-          </ListItem>
-        ))}
-      </List>
+      <Box sx={{ flexGrow: 1, bgcolor: "#fff", p: "20px" }}>
+        <Typography component="i">"Nenhum de nós é tão bom quanto todos nós juntos!"</Typography>
+      </Box>
 
       <NewAlertDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
     </Box>

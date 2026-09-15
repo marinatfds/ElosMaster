@@ -1,13 +1,16 @@
 import { useState } from "react";
 import {
   Badge,
+  Box,
+  Divider,
+  Drawer,
   IconButton,
   List,
   ListItemButton,
   ListItemText,
-  Menu,
   Typography,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useNotifications } from "../hooks/useNotifications";
 
@@ -17,36 +20,45 @@ function formatDateTime(iso: string) {
 
 export function NotificationBell() {
   const { notifications, unreadCount, markAsRead } = useNotifications();
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-      <IconButton color="inherit" onClick={(e) => setAnchorEl(e.currentTarget)}>
+      <IconButton color="inherit" onClick={() => setOpen(true)}>
         <Badge badgeContent={unreadCount} color="error">
           <NotificationsIcon />
         </Badge>
       </IconButton>
-      <Menu anchorEl={anchorEl} open={!!anchorEl} onClose={() => setAnchorEl(null)}>
-        {notifications.length === 0 && (
-          <Typography sx={{ px: 2, py: 1 }} color="text.secondary">
-            Nenhuma notificação
-          </Typography>
-        )}
-        <List sx={{ minWidth: 320, maxHeight: 400, overflowY: "auto" }}>
-          {notifications.map((notification) => (
-            <ListItemButton
-              key={notification.id}
-              onClick={() => !notification.read && markAsRead(notification.id)}
-              sx={{ bgcolor: notification.read ? "transparent" : "action.hover" }}
-            >
-              <ListItemText
-                primary={String(notification.payload.message ?? "")}
-                secondary={formatDateTime(notification.createdAt)}
-              />
-            </ListItemButton>
-          ))}
-        </List>
-      </Menu>
+      <Drawer anchor="right" open={open} onClose={() => setOpen(false)}>
+        <Box sx={{ width: 360 }} role="presentation">
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 2, py: 1.5 }}>
+            <Typography variant="h6">Notificações</Typography>
+            <IconButton onClick={() => setOpen(false)} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <Divider />
+          {notifications.length === 0 && (
+            <Typography sx={{ px: 2, py: 2 }} color="text.secondary">
+              Nenhuma notificação
+            </Typography>
+          )}
+          <List sx={{ overflowY: "auto" }}>
+            {notifications.map((notification) => (
+              <ListItemButton
+                key={notification.id}
+                onClick={() => !notification.read && markAsRead(notification.id)}
+                sx={{ bgcolor: notification.read ? "transparent" : "action.hover" }}
+              >
+                <ListItemText
+                  primary={String(notification.payload.message ?? "")}
+                  secondary={formatDateTime(notification.createdAt)}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
     </>
   );
 }
