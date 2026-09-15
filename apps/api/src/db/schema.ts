@@ -11,7 +11,7 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { CAMPUSES, NOTIFICATION_TYPES, PERIODS, ROLES } from "@elosmaster/shared";
+import { CAMPUSES, NOTIFICATION_TYPES, PERIODS, ROLES, type ScheduleSlot } from "@elosmaster/shared";
 
 export const roleEnum = pgEnum("role", ROLES);
 export const campusEnum = pgEnum("campus", CAMPUSES);
@@ -100,6 +100,18 @@ export const presenceRecords = pgTable(
     comment: text(),
   },
   (table) => [unique().on(table.studentId, table.classDate, table.period)],
+);
+
+export const schedules = pgTable(
+  "schedules",
+  {
+    id: id(),
+    campus: campusEnum().notNull(),
+    date: date().notNull(),
+    slots: jsonb().notNull().$type<ScheduleSlot[]>(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [unique().on(table.campus, table.date)],
 );
 
 export const notifications = pgTable("notifications", {

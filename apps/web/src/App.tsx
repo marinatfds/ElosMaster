@@ -11,6 +11,8 @@ import { Team } from "./pages/Team";
 import { Exams } from "./pages/Exams";
 import { Treasury } from "./pages/Treasury";
 import { NewExpense } from "./pages/NewExpense";
+import { Schedules } from "./pages/Schedules";
+import { NewSchedule } from "./pages/NewSchedule";
 import { MyStudent } from "./pages/MyStudent";
 
 export function App() {
@@ -32,6 +34,8 @@ export function App() {
           <Route path="/simulados" element={<Exams />} />
           <Route path="/tesouraria" element={<Treasury />} />
           <Route path="/tesouraria/nova" element={<NewExpense />} />
+          <Route path="/horarios" element={<Schedules />} />
+          <Route path="/horarios/novo" element={<NewSchedule />} />
         </Route>
 
         <Route element={<ProtectedRoute roles={["aluno_responsavel"]} />}>

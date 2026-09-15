@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import {
   Box,
   Button,
@@ -100,10 +101,26 @@ export function NewExpense() {
           helperText={errors.paymentDate?.message}
           {...register("paymentDate")}
         />
-
-        <Button type="submit" variant="contained" startIcon={<SaveIcon />} disabled={isSubmitting}>
-          Salvar
-        </Button>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button
+            variant="outlined"
+            component={RouterLink}
+            to="/tesouraria"
+            disabled={isSubmitting}
+            sx={{ flex: 1 }}
+          >
+            Voltar
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            startIcon={<SaveIcon />}
+            disabled={isSubmitting}
+            sx={{ flex: 1 }}
+          >
+            Salvar
+          </Button>
+        </Box>
       </Paper>
     </Box>
   );

@@ -22,6 +22,7 @@ const MENU_ITEMS: MenuItem[] = [
   { to: "/equipe", label: "Equipe", roles: ["admin", "treinador"] },
   { to: "/simulados", label: "Simulados", roles: ["admin", "treinador"] },
   { to: "/tesouraria", label: "Tesouraria", roles: ["admin", "treinador"] },
+  { to: "/horarios", label: "Horários", roles: ["admin", "treinador"] },
   { to: "/meu-aluno", label: "Meu Aluno", roles: ["aluno_responsavel"] },
 ];
 
