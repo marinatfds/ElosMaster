@@ -3,6 +3,10 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import authRoutes from "./routes/auth.js";
+import studentsRoutes from "./routes/students.js";
+import teamRoutes from "./routes/team.js";
+import alertsRoutes from "./routes/alerts.js";
+import chargesRoutes from "./routes/charges.js";
 import type { AppVariables } from "./types.js";
 
 const app = new Hono<{ Variables: AppVariables }>();
@@ -18,6 +22,10 @@ app.use(
 app.get("/health", (c) => c.json({ ok: true }));
 
 app.route("/auth", authRoutes);
+app.route("/students", studentsRoutes);
+app.route("/team", teamRoutes);
+app.route("/alerts", alertsRoutes);
+app.route("/charges", chargesRoutes);
 
 app.onError((err, c) => {
   console.error(err);

@@ -10,6 +10,7 @@ import { Students } from "./pages/Students";
 import { Team } from "./pages/Team";
 import { Exams } from "./pages/Exams";
 import { Treasury } from "./pages/Treasury";
+import { NewExpense } from "./pages/NewExpense";
 
 export function App() {
   return (
@@ -22,13 +23,14 @@ export function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Home />} />
           <Route path="/calendario" element={<Calendar />} />
-          <Route path="/alunos" element={<Students />} />
           <Route path="/equipe" element={<Team />} />
           <Route path="/simulados" element={<Exams />} />
         </Route>
 
         <Route element={<ProtectedRoute roles={["admin", "treinador"]} />}>
+          <Route path="/alunos" element={<Students />} />
           <Route path="/tesouraria" element={<Treasury />} />
+          <Route path="/tesouraria/nova" element={<NewExpense />} />
         </Route>
       </Routes>
     </Box>

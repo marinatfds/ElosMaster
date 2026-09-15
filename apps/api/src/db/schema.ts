@@ -61,7 +61,7 @@ export const charges = pgTable("charges", {
   expenseType: text().notNull(),
   description: text().notNull(),
   author: text().notNull(),
-  value: numeric({ precision: 10, scale: 2 }).notNull(),
+  value: numeric({ precision: 10, scale: 2, mode: "number" }).notNull(),
   inclusionDate: timestamp({ withTimezone: true }).notNull().defaultNow(),
   paymentDate: date().notNull(),
 });
@@ -82,7 +82,7 @@ export const examGrades = pgTable(
     studentId: integer()
       .notNull()
       .references(() => students.id),
-    grade: numeric({ precision: 4, scale: 2 }).notNull(),
+    grade: numeric({ precision: 4, scale: 2, mode: "number" }).notNull(),
   },
   (table) => [unique().on(table.examId, table.studentId)],
 );

@@ -12,7 +12,7 @@ type MenuItem = {
 const MENU_ITEMS: MenuItem[] = [
   { to: "/", label: "Início" },
   { to: "/calendario", label: "Calendário" },
-  { to: "/alunos", label: "Alunos" },
+  { to: "/alunos", label: "Alunos", roles: ["admin", "treinador"] },
   { to: "/equipe", label: "Equipe" },
   { to: "/simulados", label: "Simulados" },
   { to: "/tesouraria", label: "Tesouraria", roles: ["admin", "treinador"] },

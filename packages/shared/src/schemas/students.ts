@@ -4,7 +4,7 @@ import { CAMPUSES } from "../roles.js";
 export const createStudentSchema = z.object({
   name: z.string().min(1, "Nome obrigatório"),
   campus: z.enum(CAMPUSES),
-  active: z.boolean().default(true),
+  active: z.boolean(),
 });
 
 export type CreateStudentInput = z.infer<typeof createStudentSchema>;
