@@ -32,7 +32,6 @@ body {
   align-items: center;
   background-color: #a83234;
   font-size: 15px;
-  font-style: italic;
 }
 
 /* Style the navigation bar links */
@@ -68,35 +67,35 @@ body {
 }
 
 .home {
-  font-family: Verdana;
+  font-family: "Roboto", sans-serif !important;
   text-align: center;
   position: relative;
 }
 
 .coord {
-  font-family: Verdana;
+  font-family: "Roboto", sans-serif !important;
   text-align: center;
 }
 
 .calendar {
-  font-family: Verdana;
+  font-family: "Roboto", sans-serif !important;
   text-align: center;
 }
 
 .tresure {
   display: flex;
   flex-direction: column;
-  font-family: Verdana;
+  font-family: "Roboto", sans-serif !important;
   text-align: center;
 }
 
 .test {
-  font-family: Verdana;
+  font-family: "Roboto", sans-serif !important;
   text-align: center;
 }
 
 .student {
-  font-family: Verdana;
+  font-family: "Roboto", sans-serif !important;
   text-align: center;
 }
 
@@ -114,7 +113,7 @@ body {
 }
 
 .menuButton {
-  font-family: Verdana;
+  font-family: "Roboto", sans-serif !important;
   text-align: center;
   padding: 10px !important;
   width: 120px !important;
@@ -126,7 +125,7 @@ body {
 }
 
 .alertButton {
-  font-family: Verdana;
+  font-family: "Roboto", sans-serif !important;
   text-align: center;
   padding: 5px;
   background-color: #a83234 !important;
@@ -135,7 +134,7 @@ body {
 }
 
 .navigationButton {
-  font-family: Verdana;
+  font-family: "Roboto", sans-serif !important;
   text-align: center;
   padding: 5px;
   background-color: #e3e3e3;
@@ -168,21 +167,21 @@ body {
 }
 
 .alertLabel {
-  font-family: Verdana;
+  font-family: "Roboto", sans-serif !important;
   font-size: 14px;
   padding: 5px;
 }
 
 .PopupInput {
-  font-family: Verdana;
+  font-family: "Roboto", sans-serif !important;
   height: 100px;
   width: 80%;
 }
 
 .popupCloseButton {
-  position: absolute;
-  right: 0;
-  top: 0;
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
   padding: 3px;
   cursor: pointer;
 }

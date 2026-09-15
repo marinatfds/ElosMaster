@@ -26,6 +26,7 @@ const App = () => {
   return (
     <Router>
       <div>
+      <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'/>
         <HeaderLogo/>
         <MainMenu/>
         <Switch>

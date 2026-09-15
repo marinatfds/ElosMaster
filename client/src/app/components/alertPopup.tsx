@@ -1,4 +1,4 @@
-import { Modal, Box, Typography } from "@mui/material";
+import { Modal, Box, Typography, Button, TextField } from "@mui/material";
 import api from "../config/endpoint";
 import * as ROUTER from "../config/endpointRoutes";
 import React from "react";
@@ -44,18 +44,19 @@ export default function PopupAlerts({ onClose, onSubmit, open } : any) {
       <Box sx={style}>
         <Typography id="modal-modal-title" variant="h6" component="h2">
           Novo Alerta
-          <button className="popupCloseButton" onClick={onClose}>
+          <Button className="popupCloseButton" onClick={onClose}>
             x
-          </button>
+          </Button>
         </Typography>
         <Typography id="modal-modal-description" sx={{ mt: 2 }}>
           <div>
-            <textarea
-               id="newAlert"
-               name="alertContent"
-               className="PopupInput"
-               placeholder="Digite algo"
-            />
+          <TextField
+          id="filled-multiline-flexible"
+          label="Crie seu alerta"
+          multiline
+          maxRows={4}
+          variant="filled"
+        />
           </div>
           <button type="submit" onSubmit={onCreateAlert}>Criar</button>
         </Typography>

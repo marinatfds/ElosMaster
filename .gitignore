@@ -4,8 +4,19 @@
 client/node_modules
 server/node_modules
 /node_modules
+apps/*/node_modules
+packages/*/node_modules
 /.pnp
 .pnp.js
+
+# apps/api build + secrets
+apps/api/dist
+apps/api/secrets
+apps/api/*.env
+apps/api/.env
+
+# apps/web build
+apps/web/dist
 
 # testing
 /coverage
