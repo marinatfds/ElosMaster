@@ -1,11 +1,25 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-client/node_modules
-server/node_modules
+legacy/client/node_modules
+legacy/server/node_modules
 /node_modules
+apps/*/node_modules
+packages/*/node_modules
 /.pnp
 .pnp.js
+
+# apps/api build + secrets
+apps/api/dist
+apps/api/secrets
+apps/api/*.env
+apps/api/.env
+
+# apps/web build
+apps/web/dist
+
+# packages/shared build
+packages/shared/dist
 
 # testing
 /coverage

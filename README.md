@@ -1,68 +1,71 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# ElosMaster
 
-## Available Scripts
+Sistema de gestão para a equipe/academia ElosMaster: alunos, presença, simulados, alertas,
+tesouraria, relatórios em PDF, notificações em tempo real e documentos do Google Drive.
 
-In the project directory, you can run:
+Monorepo (npm workspaces):
 
-### `npm start`
+```
+apps/
+  web/        Vite + React + MUI — front, com rotas protegidas por papel
+  api/        Hono + Drizzle + PostgreSQL — back, com JWT + RBAC + Zod
+packages/
+  shared/     schemas Zod e tipos TypeScript compartilhados entre web e api
+legacy/       app anterior (CRA + Koa + SQL Server), arquivado — ver legacy/README.md
+```
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Três papéis de usuário: `admin`, `treinador`, `aluno_responsavel` — cada um vê um subconjunto
+diferente de telas (ver `apps/web/src/components/MainMenu.tsx` para o mapeamento completo).
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+## Pré-requisitos
 
-### `npm test`
+- Node.js 22 (LTS)
+- PostgreSQL 16+ rodando localmente (ou acessível via `DATABASE_URL`)
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Configuração inicial
 
-### `npm run build`
+```bash
+npm install                 # instala tudo e builda packages/shared (postinstall)
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+# edite os dois .env com suas credenciais locais
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+cd apps/api
+npm run db:migrate                              # cria as tabelas no Postgres
+npm run db:seed-admin -- "Seu Nome" voce@exemplo.com senha123   # primeiro usuário admin
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Desenvolvimento
 
-### `npm run eject`
+Em dois terminais, a partir da raiz do repositório:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```bash
+npm run dev:api    # http://localhost:8787
+npm run dev:web    # http://localhost:5173
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Se for editar `packages/shared` ativamente, rode `npm run dev:shared` num terceiro terminal
+(compila em modo watch) — sem isso, mudanças lá só aparecem depois de um `npm run build:shared`
+manual, porque o `api`/`web` consomem o `dist/` compilado, não o TypeScript fonte diretamente.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Build de produção
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```bash
+npm run build       # builda shared, web e api, nessa ordem
+node apps/api/dist/index.js                  # sobe a API
+# sirva apps/web/dist com qualquer servidor estático
+```
 
-## Learn More
+Veja [`DEPLOY.md`](./DEPLOY.md) para o checklist completo de cutover (variáveis de ambiente de
+produção, configuração do Google Drive, migração de dados do SQL Server antigo, Docker).
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Funcionalidades por fase
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+1. Autenticação (JWT em cookie httpOnly) + RBAC por papel
+2. Alertas, Equipe, Tesouraria, Alunos — CRUD com validação Zod de ponta a ponta
+3. Simulados (notas) e Presença, com visão restrita para `aluno_responsavel`
+4. Notificações em tempo real (SSE) com persistência, sino no menu
+5. Relatórios em PDF (boletim do aluno, extrato financeiro) via Puppeteer
+6. Documentos do Google Drive na tela Calendário (Service Account)
+7. Script de migração de dados do SQL Server antigo (`apps/api/scripts/migrate-from-mssql.ts`)
