@@ -32,6 +32,7 @@ examsRoute.get("/:id/grades", async (c) => {
     .select({
       studentId: students.id,
       studentName: students.name,
+      campus: students.campus,
       grade: examGrades.grade,
     })
     .from(students)
@@ -42,6 +43,7 @@ examsRoute.get("/:id/grades", async (c) => {
   const result: ExamGradeWithStudent[] = rows.map((row) => ({
     studentId: row.studentId,
     studentName: row.studentName,
+    campus: row.campus,
     grade: row.grade,
   }));
 

@@ -15,6 +15,8 @@ export const TEAM_POSITIONS = [
   "Assistente de Coordenação",
 ] as const;
 
+export type TeamPosition = (typeof TEAM_POSITIONS)[number];
+
 export const createTeamMemberSchema = z.object({
   name: z.string().min(1, "Nome obrigatório"),
   campus: z.enum(CAMPUSES),

@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -222,14 +223,53 @@ function RosterTab() {
   );
 }
 
+const ALL = "all";
+
 function RegistrationTab() {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [nameFilter, setNameFilter] = useState<string | null>(null);
+  const [campusFilter, setCampusFilter] = useState<Campus | typeof ALL>(ALL);
   const studentsQuery = useQuery({ queryKey: ["students"], queryFn: listStudents });
-  const rows = studentsQuery.data ?? [];
+
+  const nameOptions = useMemo(
+    () => (studentsQuery.data ?? []).map((student) => student.name),
+    [studentsQuery.data],
+  );
+
+  const rows = useMemo(() => {
+    return (studentsQuery.data ?? []).filter(
+      (student) =>
+        (!nameFilter || student.name === nameFilter) &&
+        (campusFilter === ALL || student.campus === campusFilter),
+    );
+  }, [studentsQuery.data, nameFilter, campusFilter]);
 
   return (
     <Box sx={{ mt: 2 }}>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "end", gap: 2, mb: 2 }}>
+        <Autocomplete
+          options={nameOptions}
+          value={nameFilter}
+          onChange={(_, newValue) => setNameFilter(newValue)}
+          sx={{ minWidth: 220 }}
+          renderInput={(params) => <TextField {...params} label="Nome" size="small" />}
+        />
+        <TextField
+          select
+          label="Núcleo"
+          size="small"
+          sx={{ minWidth: 160 }}
+          value={campusFilter}
+          onChange={(e) => setCampusFilter(e.target.value as Campus | typeof ALL)}
+        >
+          <MenuItem value={ALL}>Todos</MenuItem>
+          {CAMPUSES.map((campus) => (
+            <MenuItem key={campus} value={campus}>
+              {campus}
+            </MenuItem>
+          ))}
+        </TextField>
+        <Box sx={{ flex: 1 }} />
         <Button variant="contained" onClick={() => setDialogOpen(true)}>
           Novo aluno
         </Button>

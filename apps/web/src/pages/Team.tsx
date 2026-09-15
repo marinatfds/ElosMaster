@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link as RouterLink } from "react-router-dom";
 import {
   Box,
   Button,
   IconButton,
+  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -13,24 +14,74 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import { CAMPUSES, TEAM_POSITIONS, type Campus, type TeamPosition } from "@elosmaster/shared";
 import { listTeamMembers } from "../api/team";
 import { useAuth } from "../auth/AuthContext";
+
+const ALL = "all";
 
 export function Team() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [campusFilter, setCampusFilter] = useState<Campus | typeof ALL>(ALL);
+  const [positionFilter, setPositionFilter] = useState<TeamPosition | typeof ALL>(ALL);
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
   const teamQuery = useQuery({ queryKey: ["team"], queryFn: listTeamMembers });
-  const rows = teamQuery.data ?? [];
+
+  const rows = useMemo(() => {
+    return (teamQuery.data ?? []).filter(
+      (member) =>
+        (campusFilter === ALL || member.campus === campusFilter) &&
+        (positionFilter === ALL || member.position === positionFilter),
+    );
+  }, [teamQuery.data, campusFilter, positionFilter]);
 
   return (
     <Box sx={{ p: 4 }}>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "end", mb: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "end", gap: 2, mb: 2 }}>
+        <TextField
+          select
+          label="Núcleo"
+          size="small"
+          sx={{ minWidth: 160 }}
+          value={campusFilter}
+          onChange={(e) => {
+            setCampusFilter(e.target.value as Campus | typeof ALL);
+            setPage(0);
+          }}
+        >
+          <MenuItem value={ALL}>Todos</MenuItem>
+          {CAMPUSES.map((campus) => (
+            <MenuItem key={campus} value={campus}>
+              {campus}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          select
+          label="Cargo"
+          size="small"
+          sx={{ minWidth: 220 }}
+          value={positionFilter}
+          onChange={(e) => {
+            setPositionFilter(e.target.value as TeamPosition | typeof ALL);
+            setPage(0);
+          }}
+        >
+          <MenuItem value={ALL}>Todos</MenuItem>
+          {TEAM_POSITIONS.map((position) => (
+            <MenuItem key={position} value={position}>
+              {position}
+            </MenuItem>
+          ))}
+        </TextField>
+        <Box sx={{ flex: 1 }} />
         {isAdmin && (
           <Button component={RouterLink} to="/equipe/novo" variant="contained">
             Adicionar

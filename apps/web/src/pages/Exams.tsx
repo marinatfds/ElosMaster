@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Autocomplete,
   Box,
   Button,
   Dialog,
@@ -12,6 +13,7 @@ import {
   List,
   ListItemButton,
   ListItemText,
+  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -22,8 +24,10 @@ import {
   Typography,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
-import { createExamSchema, type CreateExamInput } from "@elosmaster/shared";
+import { CAMPUSES, createExamSchema, type Campus, type CreateExamInput } from "@elosmaster/shared";
 import { createExam, getExamGrades, listExams, saveExamGrades } from "../api/exams";
+
+const ALL = "all";
 
 function NewExamDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const queryClient = useQueryClient();
@@ -83,6 +87,8 @@ export function Exams() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedExamId, setSelectedExamId] = useState<number | null>(null);
   const [gradeInputs, setGradeInputs] = useState<Record<number, string>>({});
+  const [nameFilter, setNameFilter] = useState<string | null>(null);
+  const [campusFilter, setCampusFilter] = useState<Campus | typeof ALL>(ALL);
 
   const examsQuery = useQuery({ queryKey: ["exams"], queryFn: listExams });
 
@@ -107,6 +113,19 @@ export function Exams() {
       setGradeInputs(initial);
     }
   }, [gradesQuery.data]);
+
+  const nameOptions = useMemo(
+    () => (gradesQuery.data ?? []).map((row) => row.studentName),
+    [gradesQuery.data],
+  );
+
+  const filteredGrades = useMemo(() => {
+    return (gradesQuery.data ?? []).filter(
+      (row) =>
+        (!nameFilter || row.studentName === nameFilter) &&
+        (campusFilter === ALL || row.campus === campusFilter),
+    );
+  }, [gradesQuery.data, nameFilter, campusFilter]);
 
   const saveMutation = useMutation({
     mutationFn: () => {
@@ -152,7 +171,30 @@ export function Exams() {
         )}
         {selectedExamId !== null && (
           <>
-            <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "end", gap: 2, mb: 2 }}>
+              <Autocomplete
+                options={nameOptions}
+                value={nameFilter}
+                onChange={(_, newValue) => setNameFilter(newValue)}
+                sx={{ minWidth: 220 }}
+                renderInput={(params) => <TextField {...params} label="Nome" size="small" />}
+              />
+              <TextField
+                select
+                label="Núcleo"
+                size="small"
+                sx={{ minWidth: 160 }}
+                value={campusFilter}
+                onChange={(e) => setCampusFilter(e.target.value as Campus | typeof ALL)}
+              >
+                <MenuItem value={ALL}>Todos</MenuItem>
+                {CAMPUSES.map((campus) => (
+                  <MenuItem key={campus} value={campus}>
+                    {campus}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <Box sx={{ flex: 1 }} />
               <Button variant="contained" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
                 Salvar notas
               </Button>
@@ -166,7 +208,7 @@ export function Exams() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {gradesQuery.data?.map((row) => (
+                  {filteredGrades.map((row) => (
                     <TableRow key={row.studentId}>
                       <TableCell>{row.studentName}</TableCell>
                       <TableCell>

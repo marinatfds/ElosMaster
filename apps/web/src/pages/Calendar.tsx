@@ -9,9 +9,11 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Paper,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   Tab,
@@ -101,28 +103,32 @@ function DriveFileList({ section }: { section: DriveSection }) {
 
 function ScheduleTable({ schedule }: { schedule: Schedule }) {
   return (
-    <Table size="small">
-      <TableHead>
-        <TableRow>
-          <TableCell>Horário</TableCell>
-          <TableCell>Atividade</TableCell>
-          <TableCell>Responsável</TableCell>
-          <TableCell>Sala</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {schedule.slots.map((slot, index) => (
-          <TableRow key={index}>
-            <TableCell>
-              {slot.startTime} – {slot.endTime}
-            </TableCell>
-            <TableCell>{slot.name}</TableCell>
-            <TableCell>{slot.responsible}</TableCell>
-            <TableCell>{slot.room}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <Paper>
+      <TableContainer>
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell>Horário</TableCell>
+              <TableCell>Atividade</TableCell>
+              <TableCell>Responsável</TableCell>
+              <TableCell>Sala</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {schedule.slots.map((slot, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  {slot.startTime} – {slot.endTime}
+                </TableCell>
+                <TableCell>{slot.name}</TableCell>
+                <TableCell>{slot.responsible}</TableCell>
+                <TableCell>{slot.room}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Paper>
   );
 }
 
