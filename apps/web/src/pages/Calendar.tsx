@@ -1,14 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import {
   Box,
   IconButton,
-  Link,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Paper,
   Table,
   TableBody,
@@ -22,9 +16,8 @@ import {
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import type { Campus, DriveSection, Schedule } from "@elosmaster/shared";
-import { listDriveFiles } from "../api/drive";
+import { AnnualCalendar } from "../components/AnnualCalendar";
 import { listSchedules } from "../api/schedules";
 
 const SECTION_LABELS: Record<DriveSection, string> = {
@@ -38,7 +31,6 @@ const SECTION_CAMPUS: Partial<Record<DriveSection, Campus>> = {
   puc: "PUC",
 };
 
-const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
 const weekDateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeZone: "UTC" });
 
 function startOfWeek(date: Date): Date {
@@ -52,53 +44,6 @@ function addDays(date: Date, days: number): Date {
   const result = new Date(date);
   result.setUTCDate(result.getUTCDate() + days);
   return result;
-}
-
-function DriveFileList({ section }: { section: DriveSection }) {
-  const query = useQuery({ queryKey: ["drive", section], queryFn: () => listDriveFiles(section), retry: false });
-
-  if (query.isLoading) {
-    return <Typography color="text.secondary">Carregando...</Typography>;
-  }
-
-  if (query.isError) {
-    const notConfigured = isAxiosError(query.error) && query.error.response?.status === 503;
-    return (
-      <Typography color="text.secondary">
-        {notConfigured
-          ? "A integração com o Google Drive ainda não foi configurada."
-          : "Não foi possível carregar os documentos do Google Drive."}
-      </Typography>
-    );
-  }
-
-  if (query.data?.length === 0) {
-    return <Typography color="text.secondary">Nenhum documento nesta pasta ainda.</Typography>;
-  }
-
-  return (
-    <List>
-      {query.data?.map((file) => (
-        <ListItem key={file.id}>
-          <ListItemIcon>
-            <InsertDriveFileIcon />
-          </ListItemIcon>
-          <ListItemText
-            primary={
-              file.webViewLink ? (
-                <Link href={file.webViewLink} target="_blank" rel="noopener">
-                  {file.name}
-                </Link>
-              ) : (
-                file.name
-              )
-            }
-            secondary={file.modifiedTime ? `Atualizado em ${dateFormatter.format(new Date(file.modifiedTime))}` : undefined}
-          />
-        </ListItem>
-      ))}
-    </List>
-  );
 }
 
 function ScheduleTable({ schedule }: { schedule: Schedule }) {
@@ -199,9 +144,11 @@ export function Calendar() {
           <Tab key={section} label={SECTION_LABELS[section]} value={section} />
         ))}
       </Tabs>
-      {!campus && (<Box sx={{ mt: 2 }}>
-        <DriveFileList section={tab} />
-      </Box>)}
+      {tab === "anual" && (
+        <Box sx={{ mt: 2 }}>
+          <AnnualCalendar />
+        </Box>
+      )}
       {campus && (
         <Box sx={{ mt: 4 }}>
           <ScheduleList campus={campus} />
