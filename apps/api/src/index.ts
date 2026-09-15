@@ -7,6 +7,8 @@ import studentsRoutes from "./routes/students.js";
 import teamRoutes from "./routes/team.js";
 import alertsRoutes from "./routes/alerts.js";
 import chargesRoutes from "./routes/charges.js";
+import examsRoutes from "./routes/exams.js";
+import presenceRoutes from "./routes/presence.js";
 import type { AppVariables } from "./types.js";
 
 const app = new Hono<{ Variables: AppVariables }>();
@@ -26,6 +28,8 @@ app.route("/students", studentsRoutes);
 app.route("/team", teamRoutes);
 app.route("/alerts", alertsRoutes);
 app.route("/charges", chargesRoutes);
+app.route("/exams", examsRoutes);
+app.route("/presence", presenceRoutes);
 
 app.onError((err, c) => {
   console.error(err);

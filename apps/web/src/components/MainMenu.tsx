@@ -13,9 +13,10 @@ const MENU_ITEMS: MenuItem[] = [
   { to: "/", label: "Início" },
   { to: "/calendario", label: "Calendário" },
   { to: "/alunos", label: "Alunos", roles: ["admin", "treinador"] },
-  { to: "/equipe", label: "Equipe" },
-  { to: "/simulados", label: "Simulados" },
+  { to: "/equipe", label: "Equipe", roles: ["admin", "treinador"] },
+  { to: "/simulados", label: "Simulados", roles: ["admin", "treinador"] },
   { to: "/tesouraria", label: "Tesouraria", roles: ["admin", "treinador"] },
+  { to: "/meu-aluno", label: "Meu Aluno", roles: ["aluno_responsavel"] },
 ];
 
 export function MainMenu() {

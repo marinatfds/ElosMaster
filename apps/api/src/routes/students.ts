@@ -1,12 +1,16 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { eq } from "drizzle-orm";
-import { createStudentSchema } from "@elosmaster/shared";
+import { desc, eq } from "drizzle-orm";
+import { createStudentSchema, type ExamGradeWithExam } from "@elosmaster/shared";
 import { db } from "../db/client.js";
-import { students } from "../db/schema.js";
+import { students, examGrades, exams, presenceRecords } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { requireRole } from "../middleware/rbac.js";
 import type { AppVariables } from "../types.js";
+
+function canAccessStudent(user: { role: string; studentId: number | null }, studentId: number) {
+  return user.role !== "aluno_responsavel" || user.studentId === studentId;
+}
 
 const studentsRoute = new Hono<{ Variables: AppVariables }>();
 
@@ -21,7 +25,7 @@ studentsRoute.get("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const user = c.get("user");
 
-  if (user.role === "aluno_responsavel" && user.studentId !== id) {
+  if (!canAccessStudent(user, id)) {
     return c.json({ error: "Acesso negado" }, 403);
   }
 
@@ -30,6 +34,47 @@ studentsRoute.get("/:id", async (c) => {
     return c.json({ error: "Aluno não encontrado" }, 404);
   }
   return c.json(student);
+});
+
+studentsRoute.get("/:id/grades", async (c) => {
+  const id = Number(c.req.param("id"));
+  const user = c.get("user");
+
+  if (!canAccessStudent(user, id)) {
+    return c.json({ error: "Acesso negado" }, 403);
+  }
+
+  const rows = await db
+    .select({
+      examId: exams.id,
+      examName: exams.name,
+      examDate: exams.examDate,
+      grade: examGrades.grade,
+    })
+    .from(examGrades)
+    .innerJoin(exams, eq(exams.id, examGrades.examId))
+    .where(eq(examGrades.studentId, id))
+    .orderBy(desc(exams.examDate));
+
+  const result: ExamGradeWithExam[] = rows;
+  return c.json(result);
+});
+
+studentsRoute.get("/:id/presence", async (c) => {
+  const id = Number(c.req.param("id"));
+  const user = c.get("user");
+
+  if (!canAccessStudent(user, id)) {
+    return c.json({ error: "Acesso negado" }, 403);
+  }
+
+  const rows = await db
+    .select()
+    .from(presenceRecords)
+    .where(eq(presenceRecords.studentId, id))
+    .orderBy(desc(presenceRecords.classDate));
+
+  return c.json(rows);
 });
 
 studentsRoute.post("/", requireRole("admin", "treinador"), zValidator("json", createStudentSchema), async (c) => {
