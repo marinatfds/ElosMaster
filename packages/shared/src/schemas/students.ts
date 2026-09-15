@@ -15,3 +15,7 @@ export const studentSchema = createStudentSchema.extend({
 });
 
 export type Student = z.infer<typeof studentSchema>;
+
+export const updateStudentSchema = createStudentSchema;
+
+export type UpdateStudentInput = z.infer<typeof updateStudentSchema>;

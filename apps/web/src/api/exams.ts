@@ -5,6 +5,7 @@ import type {
   ExamGrade,
   ExamGradeWithExam,
   ExamGradeWithStudent,
+  UpdateExamInput,
 } from "@elosmaster/shared";
 import { api } from "./client";
 
@@ -15,6 +16,11 @@ export async function listExams() {
 
 export async function createExam(input: CreateExamInput) {
   const { data } = await api.post<Exam>("/exams", input);
+  return data;
+}
+
+export async function updateExam(id: number, input: UpdateExamInput) {
+  const { data } = await api.put<Exam>(`/exams/${id}`, input);
   return data;
 }
 

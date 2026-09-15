@@ -1,7 +1,12 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { and, eq, sql } from "drizzle-orm";
-import { createExamSchema, bulkSetExamGradesSchema, type ExamGradeWithStudent } from "@elosmaster/shared";
+import {
+  createExamSchema,
+  updateExamSchema,
+  bulkSetExamGradesSchema,
+  type ExamGradeWithStudent,
+} from "@elosmaster/shared";
 import { db } from "../db/client.js";
 import { exams, examGrades, students } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
@@ -23,6 +28,16 @@ examsRoute.post("/", zValidator("json", createExamSchema), async (c) => {
   const input = c.req.valid("json");
   const [exam] = await db.insert(exams).values(input).returning();
   return c.json(exam, 201);
+});
+
+examsRoute.put("/:id", zValidator("json", updateExamSchema), async (c) => {
+  const id = Number(c.req.param("id"));
+  const input = c.req.valid("json");
+  const [exam] = await db.update(exams).set(input).where(eq(exams.id, id)).returning();
+  if (!exam) {
+    return c.json({ error: "Simulado não encontrado" }, 404);
+  }
+  return c.json(exam);
 });
 
 examsRoute.get("/:id/grades", async (c) => {

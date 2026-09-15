@@ -114,6 +114,18 @@ export const schedules = pgTable(
   (table) => [unique().on(table.campus, table.date)],
 );
 
+export const calendarSettings = pgTable("calendar_settings", {
+  id: id(),
+  aulaStart: date(),
+  aulaEnd: date(),
+  updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+});
+
+export const extraClasses = pgTable("extra_classes", {
+  id: id(),
+  date: date().notNull().unique(),
+});
+
 export const notifications = pgTable("notifications", {
   id: id(),
   targetUserId: integer().references(() => users.id),

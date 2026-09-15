@@ -1,14 +1,21 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Box, Paper, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { DayPicker } from "react-day-picker";
 import { ptBR as dayPickerPtBR } from "react-day-picker/locale";
 import "react-day-picker/style.css";
+import { getAnnualCalendar } from "../api/calendar";
 
-function getSaturdaysInRange(year: number, startMonth: number, endMonth: number): Date[] {
+function parseISODate(iso: string): Date {
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function getSaturdaysInRange(startIso: string, endIso: string): Date[] {
+  const cursor = parseISODate(startIso);
+  const end = parseISODate(endIso);
   const dates: Date[] = [];
-  const cursor = new Date(year, startMonth, 1);
-  const end = new Date(year, endMonth + 1, 0);
   while (cursor <= end) {
     if (cursor.getDay() === 6) {
       dates.push(new Date(cursor));
@@ -18,36 +25,57 @@ function getSaturdaysInRange(year: number, startMonth: number, endMonth: number)
   return dates;
 }
 
-// Aulas de sábado: todos os sábados entre abril (3) e novembro (10) de 2026.
-const AULA_DATES = getSaturdaysInRange(2026, 3, 10);
+type LegendItemProps = { color: string; label: string };
 
-// Simulados: 8 domingos sorteados entre abril e novembro de 2026.
-const SIMULADO_DATES = [
-  new Date(2026, 4, 31),
-  new Date(2026, 5, 28),
-  new Date(2026, 6, 19),
-  new Date(2026, 6, 26),
-  new Date(2026, 7, 9),
-  new Date(2026, 7, 23),
-  new Date(2026, 9, 4),
-  new Date(2026, 10, 29),
-];
+function LegendItem({ color, label }: LegendItemProps) {
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+      <Box sx={{ width: 14, height: 14, borderRadius: "50%", bgcolor: color }} />
+      <Typography variant="body2">{label}</Typography>
+    </Box>
+  );
+}
 
 export function AnnualCalendar() {
   const theme = useTheme();
   const [month, setMonth] = useState(() => new Date());
+  const query = useQuery({ queryKey: ["calendar"], queryFn: getAnnualCalendar });
+
+  const aulaDates = useMemo(() => {
+    const { aulaStart, aulaEnd } = query.data?.settings ?? { aulaStart: null, aulaEnd: null };
+    if (!aulaStart || !aulaEnd) return [];
+    return getSaturdaysInRange(aulaStart, aulaEnd);
+  }, [query.data]);
+
+  const simuladoDates = useMemo(
+    () => (query.data?.examDates ?? []).map(parseISODate),
+    [query.data],
+  );
+
+  const aulaExtraDates = useMemo(
+    () => (query.data?.extraClasses ?? []).map((e) => parseISODate(e.date)),
+    [query.data],
+  );
+
+  const feriadoDates = useMemo(
+    () => (query.data?.holidays ?? []).map((h) => parseISODate(h.date)),
+    [query.data],
+  );
+
+  const colors = {
+    aula: theme.palette.primary.main,
+    simulado: theme.palette.grey[500],
+    aulaExtra: "#fbc02d",
+    feriado: theme.palette.info.main,
+  };
 
   return (
     <Box>
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 2 }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Box sx={{ width: 14, height: 14, borderRadius: "50%", bgcolor: theme.palette.primary.main }} />
-          <Typography variant="body2">Aulas de sábado</Typography>
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Box sx={{ width: 14, height: 14, borderRadius: "50%", bgcolor: theme.palette.warning.main }} />
-          <Typography variant="body2">Simulados</Typography>
-        </Box>
+        <LegendItem color={colors.aula} label="Aulas" />
+        <LegendItem color={colors.simulado} label="Simulados" />
+        <LegendItem color={colors.aulaExtra} label="Aulas extras" />
+        <LegendItem color={colors.feriado} label="Feriados" />
       </Box>
       <Paper sx={{ p: 2, display: "inline-block" }}>
         <DayPicker
@@ -55,16 +83,27 @@ export function AnnualCalendar() {
           month={month}
           onMonthChange={setMonth}
           showOutsideDays
-          modifiers={{ aula: AULA_DATES, simulado: SIMULADO_DATES }}
+          modifiers={{
+            aula: aulaDates,
+            simulado: simuladoDates,
+            aulaExtra: aulaExtraDates,
+            feriado: feriadoDates,
+          }}
           modifiersStyles={{
-            aula: {
-              backgroundColor: theme.palette.primary.main,
-              color: theme.palette.primary.contrastText,
+            aula: { backgroundColor: colors.aula, color: theme.palette.getContrastText(colors.aula), borderRadius: "50%" },
+            simulado: {
+              backgroundColor: colors.simulado,
+              color: theme.palette.getContrastText(colors.simulado),
               borderRadius: "50%",
             },
-            simulado: {
-              backgroundColor: theme.palette.warning.main,
-              color: theme.palette.warning.contrastText,
+            aulaExtra: {
+              backgroundColor: colors.aulaExtra,
+              color: theme.palette.getContrastText(colors.aulaExtra),
+              borderRadius: "50%",
+            },
+            feriado: {
+              backgroundColor: colors.feriado,
+              color: theme.palette.getContrastText(colors.feriado),
               borderRadius: "50%",
             },
           }}

@@ -16,6 +16,7 @@ import { EditExpense } from "./pages/EditExpense";
 import { Schedules } from "./pages/Schedules";
 import { NewSchedule } from "./pages/NewSchedule";
 import { EditSchedule } from "./pages/EditSchedule";
+import { CalendarAdmin } from "./pages/CalendarAdmin";
 import { MyStudent } from "./pages/MyStudent";
 
 export function App() {
@@ -46,6 +47,7 @@ export function App() {
             <Route path="/horarios" element={<Schedules />} />
             <Route path="/horarios/novo" element={<NewSchedule />} />
             <Route path="/horarios/:id/editar" element={<EditSchedule />} />
+            <Route path="/calendario" element={<CalendarAdmin />} />
           </Route>
 
           <Route element={<ProtectedRoute roles={["aluno_responsavel"]} />}>

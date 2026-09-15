@@ -11,6 +11,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   MenuItem,
   Paper,
   Tab,
@@ -26,8 +27,17 @@ import {
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import { CAMPUSES, createStudentSchema, type CreateStudentInput, type Campus } from "@elosmaster/shared";
-import { createStudent, listStudents } from "../api/students";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+  CAMPUSES,
+  createStudentSchema,
+  updateStudentSchema,
+  type CreateStudentInput,
+  type UpdateStudentInput,
+  type Student,
+  type Campus,
+} from "@elosmaster/shared";
+import { createStudent, listStudents, updateStudent } from "../api/students";
 import { getPresenceRoster, savePresence } from "../api/presence";
 import { getBoletimUrl } from "../api/reports";
 
@@ -87,6 +97,83 @@ function NewStudentDialog({ open, onClose }: { open: boolean; onClose: () => voi
           <Button onClick={onClose}>Cancelar</Button>
           <Button type="submit" variant="contained" disabled={isSubmitting}>
             Cadastrar
+          </Button>
+        </DialogActions>
+      </Box>
+    </Dialog>
+  );
+}
+
+function EditStudentDialog({ student, onClose }: { student: Student | null; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<UpdateStudentInput>({
+    resolver: zodResolver(updateStudentSchema),
+  });
+
+  useEffect(() => {
+    if (student) {
+      reset({ name: student.name, campus: student.campus, active: student.active });
+    }
+  }, [student, reset]);
+
+  const mutation = useMutation({
+    mutationFn: (input: UpdateStudentInput) => updateStudent(student!.id, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      enqueueSnackbar("Aluno atualizado com sucesso", { variant: "success" });
+      onClose();
+    },
+    onError: () => {
+      enqueueSnackbar("Não foi possível atualizar o aluno", { variant: "error" });
+    },
+  });
+
+  return (
+    <Dialog open={!!student} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>Editar aluno</DialogTitle>
+      <Box component="form" onSubmit={handleSubmit((input) => mutation.mutate(input))}>
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <TextField
+            label="Nome"
+            error={!!errors.name}
+            helperText={errors.name?.message}
+            {...register("name")}
+          />
+          <Controller
+            name="campus"
+            control={control}
+            render={({ field }) => (
+              <TextField {...field} select label="Núcleo">
+                {CAMPUSES.map((campus) => (
+                  <MenuItem key={campus} value={campus}>
+                    {campus}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
+          />
+          <Controller
+            name="active"
+            control={control}
+            render={({ field }) => (
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Checkbox checked={field.value ?? false} onChange={(e) => field.onChange(e.target.checked)} />
+                <Typography>Ativo</Typography>
+              </Box>
+            )}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancelar</Button>
+          <Button type="submit" variant="contained" disabled={isSubmitting}>
+            Salvar
           </Button>
         </DialogActions>
       </Box>
@@ -227,6 +314,7 @@ const ALL = "all";
 
 function RegistrationTab() {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [nameFilter, setNameFilter] = useState<string | null>(null);
   const [campusFilter, setCampusFilter] = useState<Campus | typeof ALL>(ALL);
   const studentsQuery = useQuery({ queryKey: ["students"], queryFn: listStudents });
@@ -297,16 +385,25 @@ function RegistrationTab() {
                     <TableCell>{student.campus}</TableCell>
                     <TableCell>{student.active ? "Sim" : "Não"}</TableCell>
                     <TableCell>
-                      <Button
-                        component="a"
-                        href={getBoletimUrl(student.id)}
-                        target="_blank"
-                        rel="noopener"
-                        size="small"
-                        startIcon={<PictureAsPdfIcon />}
-                      >
-                        Boletim
-                      </Button>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Button
+                          component="a"
+                          href={getBoletimUrl(student.id)}
+                          target="_blank"
+                          rel="noopener"
+                          size="small"
+                          startIcon={<PictureAsPdfIcon />}
+                        >
+                          Boletim
+                        </Button>
+                        <IconButton
+                          size="small"
+                          aria-label="Editar"
+                          onClick={() => setEditingStudent(student)}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -317,6 +414,7 @@ function RegistrationTab() {
       )}
 
       <NewStudentDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
+      <EditStudentDialog student={editingStudent} onClose={() => setEditingStudent(null)} />
     </Box>
   );
 }

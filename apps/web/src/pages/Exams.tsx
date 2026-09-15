@@ -10,7 +10,9 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   List,
+  ListItem,
   ListItemButton,
   ListItemText,
   MenuItem,
@@ -23,9 +25,18 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import { useSnackbar } from "notistack";
-import { CAMPUSES, createExamSchema, type Campus, type CreateExamInput } from "@elosmaster/shared";
-import { createExam, getExamGrades, listExams, saveExamGrades } from "../api/exams";
+import {
+  CAMPUSES,
+  createExamSchema,
+  updateExamSchema,
+  type Campus,
+  type CreateExamInput,
+  type Exam,
+  type UpdateExamInput,
+} from "@elosmaster/shared";
+import { createExam, getExamGrades, listExams, saveExamGrades, updateExam } from "../api/exams";
 
 const ALL = "all";
 
@@ -81,10 +92,68 @@ function NewExamDialog({ open, onClose }: { open: boolean; onClose: () => void }
   );
 }
 
+function EditExamDialog({ exam, onClose }: { exam: Exam | null; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<UpdateExamInput>({ resolver: zodResolver(updateExamSchema) });
+
+  useEffect(() => {
+    if (exam) {
+      reset({ name: exam.name, examDate: exam.examDate });
+    }
+  }, [exam, reset]);
+
+  const mutation = useMutation({
+    mutationFn: (input: UpdateExamInput) => updateExam(exam!.id, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["exams"] });
+      enqueueSnackbar("Simulado atualizado", { variant: "success" });
+      onClose();
+    },
+    onError: () => enqueueSnackbar("Não foi possível atualizar o simulado", { variant: "error" }),
+  });
+
+  return (
+    <Dialog open={exam !== null} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>Editar simulado</DialogTitle>
+      <Box component="form" onSubmit={handleSubmit((input) => mutation.mutate(input))}>
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <TextField
+            label="Nome"
+            error={!!errors.name}
+            helperText={errors.name?.message}
+            {...register("name")}
+          />
+          <TextField
+            label="Data"
+            type="date"
+            slotProps={{ inputLabel: { shrink: true } }}
+            error={!!errors.examDate}
+            helperText={errors.examDate?.message}
+            {...register("examDate")}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancelar</Button>
+          <Button type="submit" variant="contained" disabled={isSubmitting}>
+            Salvar
+          </Button>
+        </DialogActions>
+      </Box>
+    </Dialog>
+  );
+}
+
 export function Exams() {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingExam, setEditingExam] = useState<Exam | null>(null);
   const [selectedExamId, setSelectedExamId] = useState<number | null>(null);
   const [gradeInputs, setGradeInputs] = useState<Record<number, string>>({});
   const [nameFilter, setNameFilter] = useState<string | null>(null);
@@ -153,13 +222,29 @@ export function Exams() {
         <Paper>
           <List dense>
             {examsQuery.data?.map((exam) => (
-              <ListItemButton
+              <ListItem
                 key={exam.id}
-                selected={exam.id === selectedExamId}
-                onClick={() => setSelectedExamId(exam.id)}
+                disablePadding
+                secondaryAction={
+                  <IconButton
+                    size="small"
+                    aria-label="Editar"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingExam(exam);
+                    }}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                }
               >
-                <ListItemText primary={exam.name} secondary={exam.examDate} />
-              </ListItemButton>
+                <ListItemButton
+                  selected={exam.id === selectedExamId}
+                  onClick={() => setSelectedExamId(exam.id)}
+                >
+                  <ListItemText primary={exam.name} secondary={exam.examDate} />
+                </ListItemButton>
+              </ListItem>
             ))}
           </List>
         </Paper>
@@ -232,6 +317,7 @@ export function Exams() {
       </Box>
 
       <NewExamDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
+      <EditExamDialog exam={editingExam} onClose={() => setEditingExam(null)} />
     </Box>
   );
 }

@@ -14,6 +14,10 @@ export const examSchema = createExamSchema.extend({
 
 export type Exam = z.infer<typeof examSchema>;
 
+export const updateExamSchema = createExamSchema;
+
+export type UpdateExamInput = z.infer<typeof updateExamSchema>;
+
 export const setExamGradeSchema = z.object({
   examId: z.number().int(),
   studentId: z.number().int(),

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { desc, eq } from "drizzle-orm";
-import { createStudentSchema, type ExamGradeWithExam } from "@elosmaster/shared";
+import { createStudentSchema, updateStudentSchema, type ExamGradeWithExam } from "@elosmaster/shared";
 import { db } from "../db/client.js";
 import { students, examGrades, exams, presenceRecords } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
@@ -77,6 +77,16 @@ studentsRoute.post("/", requireRole("admin", "treinador"), zValidator("json", cr
   const input = c.req.valid("json");
   const [student] = await db.insert(students).values(input).returning();
   return c.json(student, 201);
+});
+
+studentsRoute.put("/:id", requireRole("admin", "treinador"), zValidator("json", updateStudentSchema), async (c) => {
+  const id = Number(c.req.param("id"));
+  const input = c.req.valid("json");
+  const [student] = await db.update(students).set(input).where(eq(students.id, id)).returning();
+  if (!student) {
+    return c.json({ error: "Aluno não encontrado" }, 404);
+  }
+  return c.json(student);
 });
 
 export default studentsRoute;
