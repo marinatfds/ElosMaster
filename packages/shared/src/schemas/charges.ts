@@ -24,3 +24,7 @@ export const chargeSchema = createChargeSchema.extend({
 });
 
 export type Charge = z.infer<typeof chargeSchema>;
+
+export const updateChargeSchema = createChargeSchema;
+
+export type UpdateChargeInput = z.infer<typeof updateChargeSchema>;

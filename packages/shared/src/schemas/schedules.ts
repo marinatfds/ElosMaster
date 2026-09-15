@@ -63,6 +63,10 @@ export const createScheduleSchema = z.object({
 
 export type CreateScheduleInput = z.infer<typeof createScheduleSchema>;
 
+export const updateScheduleSchema = createScheduleSchema;
+
+export type UpdateScheduleInput = z.infer<typeof updateScheduleSchema>;
+
 export const scheduleSchema = createScheduleSchema.extend({
   id: z.number().int(),
   createdAt: z.iso.datetime(),

@@ -152,8 +152,7 @@ export function Exams() {
         )}
         {selectedExamId !== null && (
           <>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="h5">Notas</Typography>
+            <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 2 }}>
               <Button variant="contained" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
                 Salvar notas
               </Button>

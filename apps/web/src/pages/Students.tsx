@@ -286,7 +286,6 @@ export function Students() {
 
   return (
     <Box sx={{ p: 4 }}>
-      <Typography variant="h5">Alunos</Typography>
       <Tabs value={tab} onChange={(_, value) => setTab(value)}>
         <Tab label="Cadastro" value="cadastro" />
         <Tab label="Presença" value="presenca" />
