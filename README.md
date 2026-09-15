@@ -14,7 +14,7 @@ packages/
 legacy/       app anterior (CRA + Koa + SQL Server), arquivado — ver legacy/README.md
 ```
 
-Três papéis de usuário: `admin`, `treinador`, `aluno_responsavel` — cada um vê um subconjunto
+Três papéis de usuário: `admin`, `coordinator`, `volunteer` — cada um vê um subconjunto
 diferente de telas (ver `apps/web/src/components/Sidebar.tsx` para o mapeamento completo).
 
 ## Pré-requisitos
@@ -64,7 +64,7 @@ produção, configuração do Google Drive, migração de dados do SQL Server an
 
 1. Autenticação (JWT em cookie httpOnly) + RBAC por papel
 2. Alertas, Equipe, Tesouraria, Alunos — CRUD com validação Zod de ponta a ponta
-3. Simulados (notas) e Presença, com visão restrita para `aluno_responsavel`
+3. Simulados (notas) e Presença, com visão restrita para `volunteer`
 4. Notificações em tempo real (SSE) com persistência, sino no menu
 5. Relatórios em PDF (boletim do aluno, extrato financeiro) via Puppeteer
 6. Documentos do Google Drive na tela Calendário (Service Account)

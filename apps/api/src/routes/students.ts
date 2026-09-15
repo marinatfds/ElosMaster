@@ -12,7 +12,7 @@ const studentsRoute = new Hono<{ Variables: AppVariables }>();
 
 studentsRoute.use("*", authMiddleware);
 
-studentsRoute.get("/", requireRole("admin", "treinador"), async (c) => {
+studentsRoute.get("/", requireRole("admin", "coordinator"), async (c) => {
   const rows = await db.select().from(students).orderBy(students.name);
   return c.json(rows);
 });
@@ -73,13 +73,13 @@ studentsRoute.get("/:id/presence", async (c) => {
   return c.json(rows);
 });
 
-studentsRoute.post("/", requireRole("admin", "treinador"), zValidator("json", createStudentSchema), async (c) => {
+studentsRoute.post("/", requireRole("admin", "coordinator"), zValidator("json", createStudentSchema), async (c) => {
   const input = c.req.valid("json");
   const [student] = await db.insert(students).values(input).returning();
   return c.json(student, 201);
 });
 
-studentsRoute.put("/:id", requireRole("admin", "treinador"), zValidator("json", updateStudentSchema), async (c) => {
+studentsRoute.put("/:id", requireRole("admin", "coordinator"), zValidator("json", updateStudentSchema), async (c) => {
   const id = Number(c.req.param("id"));
   const input = c.req.valid("json");
   const [student] = await db.update(students).set(input).where(eq(students.id, id)).returning();

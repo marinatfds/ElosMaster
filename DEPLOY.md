@@ -85,7 +85,7 @@ POSTGRES_PASSWORD=... JWT_SECRET=... WEB_ORIGIN=https://app... API_ORIGIN=https:
 ## 6. Checklist de fumaça pós-deploy
 
 - [ ] `GET /health` na API responde `{"ok":true}`
-- [ ] Login funciona para os 3 papéis (admin, treinador, aluno_responsavel)
+- [ ] Login funciona para os 3 papéis (admin, coordinator, volunteer)
 - [ ] Menu mostra os itens certos por papel
 - [ ] Criar um alerta e ver a notificação chegar em tempo real (SSE) em outra sessão
 - [ ] Gerar boletim e extrato em PDF (conferir que abrem e têm acentuação correta)

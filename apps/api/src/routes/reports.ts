@@ -74,7 +74,7 @@ reportsRoute.get("/boletim/:studentId", async (c) => {
   return pdfResponse(pdf, `boletim-${student.id}.pdf`);
 });
 
-reportsRoute.get("/financeiro", requireRole("admin", "treinador"), async (c) => {
+reportsRoute.get("/financeiro", requireRole("admin", "coordinator"), async (c) => {
   const rows = await db.select().from(charges).orderBy(desc(charges.paymentDate));
   const pdf = await renderPdf(financeiroHtml(rows));
   return pdfResponse(pdf, "extrato-financeiro.pdf");

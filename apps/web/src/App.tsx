@@ -32,7 +32,7 @@ export function App() {
             <Route path="/" element={<Home />} />
           </Route>
 
-          <Route element={<ProtectedRoute roles={["admin", "treinador"]} />}>
+          <Route element={<ProtectedRoute roles={["admin", "coordinator"]} />}>
             <Route path="/alunos" element={<Students />} />
             <Route path="/equipe" element={<Team />} />
             <Route path="/simulados" element={<Exams />} />
@@ -50,7 +50,7 @@ export function App() {
             <Route path="/calendario" element={<CalendarAdmin />} />
           </Route>
 
-          <Route element={<ProtectedRoute roles={["aluno_responsavel"]} />}>
+          <Route element={<ProtectedRoute roles={["volunteer"]} />}>
             <Route path="/meu-aluno" element={<MyStudent />} />
           </Route>
         </Routes>

@@ -1,7 +1,7 @@
 CREATE TYPE "public"."campus" AS ENUM('FGV', 'PUC');--> statement-breakpoint
 CREATE TYPE "public"."notification_type" AS ENUM('alert_created', 'grade_posted', 'presence_posted');--> statement-breakpoint
 CREATE TYPE "public"."period" AS ENUM('morning', 'afternoon');--> statement-breakpoint
-CREATE TYPE "public"."role" AS ENUM('admin', 'treinador', 'aluno_responsavel');--> statement-breakpoint
+CREATE TYPE "public"."role" AS ENUM('admin', 'coordinator', 'volunteer');--> statement-breakpoint
 CREATE TABLE "alerts" (
 	"id" integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY (sequence name "alerts_id_seq" INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START WITH 1 CACHE 1),
 	"message" text NOT NULL,

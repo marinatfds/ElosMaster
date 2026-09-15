@@ -19,7 +19,7 @@ const periodLabels: Record<string, string> = { morning: "manhã", afternoon: "ta
 const presenceRoute = new Hono<{ Variables: AppVariables }>();
 
 presenceRoute.use("*", authMiddleware);
-presenceRoute.use("*", requireRole("admin", "treinador"));
+presenceRoute.use("*", requireRole("admin", "coordinator"));
 
 presenceRoute.get("/roster", async (c) => {
   const campus = c.req.query("campus");

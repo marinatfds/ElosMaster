@@ -18,7 +18,7 @@ alertsRoute.get("/", async (c) => {
   return c.json(rows);
 });
 
-alertsRoute.post("/", requireRole("admin", "treinador"), zValidator("json", createAlertSchema), async (c) => {
+alertsRoute.post("/", requireRole("admin", "coordinator"), zValidator("json", createAlertSchema), async (c) => {
   const input = c.req.valid("json");
   const user = c.get("user");
   const [alert] = await db

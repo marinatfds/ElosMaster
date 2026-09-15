@@ -52,12 +52,12 @@ export async function publishNotification(
   return notification;
 }
 
-/** Notifies every aluno_responsavel account linked to a student (usually one, but not assumed). */
+/** Notifies every volunteer account linked to a student (usually one, but not assumed). */
 export async function notifyGuardians(studentId: number, type: NotificationType, message: string) {
   const guardians = await db
     .select({ id: users.id })
     .from(users)
-    .where(and(eq(users.studentId, studentId), eq(users.role, "aluno_responsavel")));
+    .where(and(eq(users.studentId, studentId), eq(users.role, "volunteer")));
 
   for (const guardian of guardians) {
     await publishNotification(guardian.id, type, message, { studentId });

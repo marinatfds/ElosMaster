@@ -11,7 +11,7 @@ import type { AppVariables } from "../types.js";
 const chargesRoute = new Hono<{ Variables: AppVariables }>();
 
 chargesRoute.use("*", authMiddleware);
-chargesRoute.use("*", requireRole("admin", "treinador"));
+chargesRoute.use("*", requireRole("admin", "coordinator"));
 
 chargesRoute.get("/", async (c) => {
   const rows = await db.select().from(charges).orderBy(desc(charges.paymentDate));

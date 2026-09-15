@@ -11,7 +11,7 @@ import type { AppVariables } from "../types.js";
 const teamRoute = new Hono<{ Variables: AppVariables }>();
 
 teamRoute.use("*", authMiddleware);
-teamRoute.use("*", requireRole("admin", "treinador"));
+teamRoute.use("*", requireRole("admin", "coordinator"));
 
 teamRoute.get("/", async (c) => {
   const rows = await db.select().from(teamMembers).orderBy(teamMembers.name);

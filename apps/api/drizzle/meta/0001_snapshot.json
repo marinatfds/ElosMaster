@@ -727,8 +727,8 @@
       "schema": "public",
       "values": [
         "admin",
-        "treinador",
-        "aluno_responsavel"
+        "coordinator",
+        "volunteer"
       ]
     }
   },

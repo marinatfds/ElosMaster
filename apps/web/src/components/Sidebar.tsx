@@ -28,13 +28,13 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { to: "/", label: "Início", icon: HomeIcon },
-  { to: "/alunos", label: "Alunos", icon: SchoolIcon, roles: ["admin", "treinador"] },
-  { to: "/equipe", label: "Equipe", icon: GroupsIcon, roles: ["admin", "treinador"] },
-  { to: "/simulados", label: "Simulados", icon: AssignmentIcon, roles: ["admin", "treinador"] },
-  { to: "/tesouraria", label: "Tesouraria", icon: AccountBalanceWalletIcon, roles: ["admin", "treinador"] },
+  { to: "/alunos", label: "Alunos", icon: SchoolIcon, roles: ["admin", "coordinator"] },
+  { to: "/equipe", label: "Equipe", icon: GroupsIcon, roles: ["admin", "coordinator"] },
+  { to: "/simulados", label: "Simulados", icon: AssignmentIcon, roles: ["admin", "coordinator"] },
+  { to: "/tesouraria", label: "Tesouraria", icon: AccountBalanceWalletIcon, roles: ["admin", "coordinator"] },
   { to: "/horarios", label: "Horários", icon: ScheduleIcon, roles: ["admin"] },
   { to: "/calendario", label: "Calendário", icon: CalendarMonthIcon, roles: ["admin"] },
-  { to: "/meu-aluno", label: "Meu Aluno", icon: PersonIcon, roles: ["aluno_responsavel"] },
+  { to: "/meu-aluno", label: "Meu Aluno", icon: PersonIcon, roles: ["volunteer"] },
 ];
 
 const SOCIAL_LINKS = [

@@ -12,7 +12,7 @@ export function requireRole(...roles: Role[]) {
   };
 }
 
-/** aluno_responsavel can only reach data for the student linked to their account. */
+/** volunteer can only reach data for the student linked to their account. */
 export function canAccessStudent(user: CurrentUser, studentId: number) {
-  return user.role !== "aluno_responsavel" || user.studentId === studentId;
+  return user.role !== "volunteer" || user.studentId === studentId;
 }
