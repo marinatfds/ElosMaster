@@ -1,12 +1,12 @@
 import { Hono } from "hono";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import type { ExamGradeWithExam } from "@elosmaster/shared";
 import { db } from "../db/client.js";
 import { charges, exams, examGrades, presenceRecords, students } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { canAccessStudent, requireRole } from "../middleware/rbac.js";
 import { renderPdf } from "../services/pdf.js";
-import { boletimHtml, financeiroHtml } from "../services/report-templates.js";
+import { boletimHtml, buildExamAverages, financeiroHtml } from "../services/report-templates.js";
 import type { AppVariables } from "../types.js";
 
 const reportsRoute = new Hono<{ Variables: AppVariables }>();
@@ -48,13 +48,29 @@ reportsRoute.get("/boletim/:studentId", async (c) => {
     .orderBy(desc(exams.examDate));
   const grades: ExamGradeWithExam[] = gradeRows;
 
+  const examIds = [...new Set(grades.map((g) => g.examId))];
+  const campusAvgRows = examIds.length
+    ? await db
+        .select({
+          examId: examGrades.examId,
+          campus: students.campus,
+          avgGrade: sql<string>`avg(${examGrades.grade})`,
+          count: sql<string>`count(*)`,
+        })
+        .from(examGrades)
+        .innerJoin(students, eq(students.id, examGrades.studentId))
+        .where(inArray(examGrades.examId, examIds))
+        .groupBy(examGrades.examId, students.campus)
+    : [];
+  const examAverages = buildExamAverages(campusAvgRows);
+
   const presence = await db
     .select()
     .from(presenceRecords)
     .where(eq(presenceRecords.studentId, studentId))
     .orderBy(desc(presenceRecords.classDate));
 
-  const pdf = await renderPdf(boletimHtml(student, grades, presence));
+  const pdf = await renderPdf(boletimHtml(student, grades, examAverages, presence));
   return pdfResponse(pdf, `boletim-${student.id}.pdf`);
 });
 

@@ -1,9 +1,44 @@
-import type { ExamGradeWithExam } from "@elosmaster/shared";
+import { CAMPUSES, type Campus, type ExamGradeWithExam } from "@elosmaster/shared";
 import type { charges, presenceRecords, students } from "../db/schema.js";
 
 type Student = typeof students.$inferSelect;
 type PresenceRecord = typeof presenceRecords.$inferSelect;
 type Charge = typeof charges.$inferSelect;
+
+export interface ExamCampusAverageRow {
+  examId: number;
+  campus: Campus;
+  avgGrade: string;
+  count: string;
+}
+
+export interface ExamAverage {
+  byCampus: Partial<Record<Campus, number>>;
+  overall: number;
+}
+
+export function buildExamAverages(rows: ExamCampusAverageRow[]): Map<number, ExamAverage> {
+  const result = new Map<number, ExamAverage>();
+
+  for (const row of rows) {
+    const existing = result.get(row.examId) ?? { byCampus: {}, overall: 0 };
+    existing.byCampus[row.campus] = Number(row.avgGrade);
+    result.set(row.examId, existing);
+  }
+
+  for (const [examId, average] of result) {
+    const rowsForExam = rows.filter((r) => r.examId === examId);
+    const totalCount = rowsForExam.reduce((sum, r) => sum + Number(r.count), 0);
+    const totalSum = rowsForExam.reduce((sum, r) => sum + Number(r.avgGrade) * Number(r.count), 0);
+    average.overall = totalCount > 0 ? totalSum / totalCount : 0;
+  }
+
+  return result;
+}
+
+function formatAverage(value: number | undefined) {
+  return value === undefined ? "—" : value.toFixed(2);
+}
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" });
 const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -41,12 +76,23 @@ ${body}
 </html>`;
 }
 
-export function boletimHtml(student: Student, grades: ExamGradeWithExam[], presence: PresenceRecord[]) {
+export function boletimHtml(
+  student: Student,
+  grades: ExamGradeWithExam[],
+  examAverages: Map<number, ExamAverage>,
+  presence: PresenceRecord[],
+) {
+  const campusHeaders = CAMPUSES.map((campus) => `<th>Média ${escapeHtml(campus)}</th>`).join("");
+
   const gradesRows = grades
-    .map(
-      (g) =>
-        `<tr><td>${escapeHtml(g.examName)}</td><td>${dateFormatter.format(new Date(g.examDate))}</td><td>${g.grade}</td></tr>`,
-    )
+    .map((g) => {
+      const average = examAverages.get(g.examId);
+      const campusCells = CAMPUSES.map((campus) => `<td>${formatAverage(average?.byCampus[campus])}</td>`).join(
+        "",
+      );
+      const overallCell = `<td>${average ? average.overall.toFixed(2) : "—"}</td>`;
+      return `<tr><td>${escapeHtml(g.examName)}</td><td>${dateFormatter.format(new Date(g.examDate))}</td><td>${g.grade}</td>${campusCells}${overallCell}</tr>`;
+    })
     .join("");
 
   const presenceRows = presence
@@ -62,8 +108,8 @@ export function boletimHtml(student: Student, grades: ExamGradeWithExam[], prese
 
     <h2>Notas</h2>
     <table>
-      <thead><tr><th>Simulado</th><th>Data</th><th>Nota</th></tr></thead>
-      <tbody>${gradesRows || '<tr><td colspan="3">Nenhuma nota lançada.</td></tr>'}</tbody>
+      <thead><tr><th>Simulado</th><th>Data</th><th>Nota</th>${campusHeaders}<th>Média Geral</th></tr></thead>
+      <tbody>${gradesRows || `<tr><td colspan="${4 + CAMPUSES.length}">Nenhuma nota lançada.</td></tr>`}</tbody>
     </table>
 
     <h2>Presença</h2>
