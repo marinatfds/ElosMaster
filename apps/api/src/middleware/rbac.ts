@@ -1,5 +1,5 @@
 import type { Context, Next } from "hono";
-import type { Role } from "@elosmaster/shared";
+import type { CurrentUser, Role } from "@elosmaster/shared";
 import type { AppVariables } from "../types.js";
 
 export function requireRole(...roles: Role[]) {
@@ -10,4 +10,9 @@ export function requireRole(...roles: Role[]) {
     }
     await next();
   };
+}
+
+/** aluno_responsavel can only reach data for the student linked to their account. */
+export function canAccessStudent(user: CurrentUser, studentId: number) {
+  return user.role !== "aluno_responsavel" || user.studentId === studentId;
 }

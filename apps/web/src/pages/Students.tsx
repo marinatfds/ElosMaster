@@ -24,9 +24,11 @@ import {
   Typography,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { CAMPUSES, createStudentSchema, type CreateStudentInput, type Campus } from "@elosmaster/shared";
 import { createStudent, listStudents } from "../api/students";
 import { getPresenceRoster, savePresence } from "../api/presence";
+import { getBoletimUrl } from "../api/reports";
 
 function NewStudentDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const queryClient = useQueryClient();
@@ -245,6 +247,7 @@ function RegistrationTab() {
                   <TableCell>Nome</TableCell>
                   <TableCell>Núcleo</TableCell>
                   <TableCell>Ativo</TableCell>
+                  <TableCell />
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -253,6 +256,18 @@ function RegistrationTab() {
                     <TableCell>{student.name}</TableCell>
                     <TableCell>{student.campus}</TableCell>
                     <TableCell>{student.active ? "Sim" : "Não"}</TableCell>
+                    <TableCell>
+                      <Button
+                        component="a"
+                        href={getBoletimUrl(student.id)}
+                        target="_blank"
+                        rel="noopener"
+                        size="small"
+                        startIcon={<PictureAsPdfIcon />}
+                      >
+                        Boletim
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

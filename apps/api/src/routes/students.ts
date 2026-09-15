@@ -5,12 +5,8 @@ import { createStudentSchema, type ExamGradeWithExam } from "@elosmaster/shared"
 import { db } from "../db/client.js";
 import { students, examGrades, exams, presenceRecords } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
-import { requireRole } from "../middleware/rbac.js";
+import { canAccessStudent, requireRole } from "../middleware/rbac.js";
 import type { AppVariables } from "../types.js";
-
-function canAccessStudent(user: { role: string; studentId: number | null }, studentId: number) {
-  return user.role !== "aluno_responsavel" || user.studentId === studentId;
-}
 
 const studentsRoute = new Hono<{ Variables: AppVariables }>();
 

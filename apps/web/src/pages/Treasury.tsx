@@ -14,7 +14,9 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { listCharges } from "../api/charges";
+import { getFinanceiroUrl } from "../api/reports";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" });
@@ -30,9 +32,21 @@ export function Treasury() {
     <Box sx={{ p: 4 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
         <Typography variant="h5">Tesouraria</Typography>
-        <Button component={RouterLink} to="/tesouraria/nova" variant="contained">
-          Nova Despesa
-        </Button>
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <Button
+            component="a"
+            href={getFinanceiroUrl()}
+            target="_blank"
+            rel="noopener"
+            variant="outlined"
+            startIcon={<PictureAsPdfIcon />}
+          >
+            Extrato em PDF
+          </Button>
+          <Button component={RouterLink} to="/tesouraria/nova" variant="contained">
+            Nova Despesa
+          </Button>
+        </Box>
       </Box>
 
       {chargesQuery.isLoading && <Typography color="text.secondary">Carregando...</Typography>}
