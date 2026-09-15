@@ -11,6 +11,7 @@ import examsRoutes from "./routes/exams.js";
 import presenceRoutes from "./routes/presence.js";
 import notificationsRoutes from "./routes/notifications.js";
 import reportsRoutes from "./routes/reports.js";
+import driveRoutes from "./routes/drive.js";
 import { closeBrowser } from "./services/pdf.js";
 import type { AppVariables } from "./types.js";
 
@@ -35,6 +36,7 @@ app.route("/exams", examsRoutes);
 app.route("/presence", presenceRoutes);
 app.route("/notifications", notificationsRoutes);
 app.route("/reports", reportsRoutes);
+app.route("/drive", driveRoutes);
 
 app.onError((err, c) => {
   console.error(err);
