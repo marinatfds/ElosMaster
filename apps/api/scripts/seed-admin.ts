@@ -1,8 +1,8 @@
 import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { db } from "../src/db/client";
-import { users } from "../src/db/schema";
+import { db } from "../src/db/client.js";
+import { users } from "../src/db/schema.js";
 
 async function main() {
   const [name, email, password] = process.argv.slice(2);

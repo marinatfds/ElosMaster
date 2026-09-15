@@ -4,11 +4,13 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
+    "typecheck": "tsc --noEmit -p tsconfig.scripts.json",
     "start": "node dist/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:seed-admin": "tsx scripts/seed-admin.ts"
+    "db:seed-admin": "tsx scripts/seed-admin.ts",
+    "migrate:mssql": "tsx scripts/migrate-from-mssql.ts"
   },
   "dependencies": {
     "@elosmaster/shared": "*",
@@ -26,6 +28,8 @@
   "devDependencies": {
     "@types/node": "^26.1.1",
     "drizzle-kit": "^0.31.10",
+    "@types/mssql": "^12.3.0",
+    "mssql": "^12.7.2",
     "tsx": "^4.23.0",
     "typescript": "^7.0.2"
   }
