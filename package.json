@@ -7,9 +7,13 @@
     "packages/*"
   ],
   "scripts": {
+    "postinstall": "npm run build:shared",
     "dev:web": "npm run dev -w web",
     "dev:api": "npm run dev -w api",
-    "build:web": "npm run build -w web",
-    "build:api": "npm run build -w api"
+    "dev:shared": "npm run dev -w @elosmaster/shared",
+    "build:shared": "npm run build -w @elosmaster/shared",
+    "build:web": "npm run build:shared && npm run build -w web",
+    "build:api": "npm run build:shared && npm run build -w api",
+    "build": "npm run build:shared && npm run build -w web && npm run build -w api"
   }
 }

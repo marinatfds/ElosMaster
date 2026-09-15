@@ -1,0 +1,50 @@
+# NÃO TESTADO neste ambiente (sem Docker disponível durante o desenvolvimento).
+# Referência para deploy self-hosted (ex: VPS). Ajuste conforme seu provedor.
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: elosmaster
+      POSTGRES_USER: elosmaster
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U elosmaster"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 8787
+      CORS_ORIGIN: ${WEB_ORIGIN:?defina WEB_ORIGIN, ex: https://app.seudominio.com}
+      DATABASE_URL: postgres://elosmaster:${POSTGRES_PASSWORD}@postgres:5432/elosmaster
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET}
+      GOOGLE_SERVICE_ACCOUNT_KEY_PATH: /run/secrets/google-service-account.json
+      GOOGLE_DRIVE_FOLDER_ID: ${GOOGLE_DRIVE_FOLDER_ID}
+    volumes:
+      - ./apps/api/secrets/google-service-account.json:/run/secrets/google-service-account.json:ro
+    ports:
+      - "8787:8787"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: ${API_ORIGIN:?defina API_ORIGIN, ex: https://api.seudominio.com}
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+
+volumes:
+  postgres_data:
