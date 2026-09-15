@@ -15,7 +15,7 @@ legacy/       app anterior (CRA + Koa + SQL Server), arquivado — ver legacy/RE
 ```
 
 Três papéis de usuário: `admin`, `treinador`, `aluno_responsavel` — cada um vê um subconjunto
-diferente de telas (ver `apps/web/src/components/MainMenu.tsx` para o mapeamento completo).
+diferente de telas (ver `apps/web/src/components/Sidebar.tsx` para o mapeamento completo).
 
 ## Pré-requisitos
 
