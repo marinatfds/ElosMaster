@@ -9,6 +9,7 @@ import alertsRoutes from "./routes/alerts.js";
 import chargesRoutes from "./routes/charges.js";
 import examsRoutes from "./routes/exams.js";
 import presenceRoutes from "./routes/presence.js";
+import notificationsRoutes from "./routes/notifications.js";
 import type { AppVariables } from "./types.js";
 
 const app = new Hono<{ Variables: AppVariables }>();
@@ -30,6 +31,7 @@ app.route("/alerts", alertsRoutes);
 app.route("/charges", chargesRoutes);
 app.route("/exams", examsRoutes);
 app.route("/presence", presenceRoutes);
+app.route("/notifications", notificationsRoutes);
 
 app.onError((err, c) => {
   console.error(err);

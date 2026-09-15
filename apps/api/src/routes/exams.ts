@@ -6,6 +6,7 @@ import { db } from "../db/client.js";
 import { exams, examGrades, students } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { requireRole } from "../middleware/rbac.js";
+import { notifyGuardians } from "../services/notification-bus.js";
 import type { AppVariables } from "../types.js";
 
 const examsRoute = new Hono<{ Variables: AppVariables }>();
@@ -55,6 +56,11 @@ examsRoute.post("/:id/grades", zValidator("json", bulkSetExamGradesSchema), asyn
     return c.json([]);
   }
 
+  const [exam] = await db.select().from(exams).where(eq(exams.id, examId)).limit(1);
+  if (!exam) {
+    return c.json({ error: "Simulado não encontrado" }, 404);
+  }
+
   const saved = await db
     .insert(examGrades)
     .values(grades.map((g) => ({ examId, studentId: g.studentId, grade: g.grade })))
@@ -63,6 +69,10 @@ examsRoute.post("/:id/grades", zValidator("json", bulkSetExamGradesSchema), asyn
       set: { grade: sql`excluded.grade` },
     })
     .returning();
+
+  for (const grade of saved) {
+    await notifyGuardians(grade.studentId, "grade_posted", `Nova nota em ${exam.name}: ${grade.grade}`);
+  }
 
   return c.json(saved, 201);
 });

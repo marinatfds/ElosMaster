@@ -6,6 +6,7 @@ import { db } from "../db/client.js";
 import { alerts } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { requireRole } from "../middleware/rbac.js";
+import { publishNotification } from "../services/notification-bus.js";
 import type { AppVariables } from "../types.js";
 
 const alertsRoute = new Hono<{ Variables: AppVariables }>();
@@ -24,6 +25,9 @@ alertsRoute.post("/", requireRole("admin", "treinador"), zValidator("json", crea
     .insert(alerts)
     .values({ ...input, createdBy: user.id })
     .returning();
+
+  await publishNotification(null, "alert_created", `Novo alerta: ${alert.message}`);
+
   return c.json(alert, 201);
 });
 

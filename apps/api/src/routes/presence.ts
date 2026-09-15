@@ -11,7 +11,10 @@ import { db } from "../db/client.js";
 import { presenceRecords, students } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { requireRole } from "../middleware/rbac.js";
+import { notifyGuardians } from "../services/notification-bus.js";
 import type { AppVariables } from "../types.js";
+
+const periodLabels: Record<string, string> = { morning: "manhã", afternoon: "tarde" };
 
 const presenceRoute = new Hono<{ Variables: AppVariables }>();
 
@@ -73,6 +76,15 @@ presenceRoute.post("/", zValidator("json", bulkPresenceSchema), async (c) => {
       set: { present: sql`excluded.present`, comment: sql`excluded.comment` },
     })
     .returning();
+
+  for (const record of saved) {
+    const status = record.present ? "presente" : "ausente";
+    await notifyGuardians(
+      record.studentId,
+      "presence_posted",
+      `Presença de ${periodLabels[record.period]} em ${record.classDate}: ${status}`,
+    );
+  }
 
   return c.json(saved, 201);
 });

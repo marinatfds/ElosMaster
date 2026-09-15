@@ -2,6 +2,7 @@ import { AppBar, Box, Button, Toolbar, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import type { Role } from "@elosmaster/shared";
 import { useAuth } from "../auth/AuthContext";
+import { NotificationBell } from "./NotificationBell";
 
 type MenuItem = {
   to: string;
@@ -38,6 +39,7 @@ export function MainMenu() {
             </Button>
           ))}
         </Box>
+        <NotificationBell />
         <Typography variant="body2">{user.name}</Typography>
         <Button color="inherit" onClick={() => logout()}>
           Sair
