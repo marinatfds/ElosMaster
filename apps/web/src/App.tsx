@@ -18,6 +18,7 @@ import { NewSchedule } from "./pages/NewSchedule";
 import { EditSchedule } from "./pages/EditSchedule";
 import { CalendarAdmin } from "./pages/CalendarAdmin";
 import { MyStudent } from "./pages/MyStudent";
+import { Settings } from "./pages/Settings";
 
 export function App() {
   return (
@@ -30,6 +31,7 @@ export function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Home />} />
+            <Route path="/configuracoes" element={<Settings />} />
           </Route>
 
           <Route element={<ProtectedRoute roles={["admin", "coordinator"]} />}>

@@ -1,5 +1,14 @@
-import { Avatar, Box, IconButton, Menu, MenuItem, Tooltip, Typography } from "@mui/material";
-import { Link as RouterLink, useLocation } from "react-router-dom";
+import {
+  Avatar,
+  Box,
+  IconButton,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import YouTubeIcon from "@mui/icons-material/YouTube";
@@ -11,6 +20,8 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import PersonIcon from "@mui/icons-material/Person";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import SettingsIcon from "@mui/icons-material/Settings";
+import LogoutIcon from "@mui/icons-material/Logout";
 import type { Role } from "@elosmaster/shared";
 import { useAuth } from "../auth/AuthContext";
 import { NotificationBell } from "./NotificationBell";
@@ -50,6 +61,7 @@ const SOCIAL_LINKS = [
 export function Sidebar() {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -164,10 +176,24 @@ export function Sidebar() {
           <MenuItem
             onClick={() => {
               handleClose();
+              navigate("/configuracoes");
+            }}
+          >
+            <ListItemIcon>
+              <SettingsIcon fontSize="small" />
+            </ListItemIcon>
+            Configurações
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              handleClose();
               logout();
             }}
           >
-            Sair
+            <ListItemIcon>
+              <LogoutIcon fontSize="small" />
+            </ListItemIcon>
+            Logout
           </MenuItem>
         </Menu>
       </Box>

@@ -12,7 +12,7 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const ME_QUERY_KEY = ["auth", "me"] as const;
+export const ME_QUERY_KEY = ["auth", "me"] as const;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
