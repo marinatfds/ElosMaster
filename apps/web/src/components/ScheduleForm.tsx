@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,13 +8,13 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import {
-  CAMPUSES,
   SCHEDULE_ACTIVITIES,
   computeSlotTime,
   createScheduleSchema,
   type CreateScheduleInput,
 } from "@elosmaster/shared";
 import { listTeamMembers } from "../api/team";
+import { useCampuses } from "../hooks/useCampuses";
 
 const TOTAL_SLOTS = SCHEDULE_ACTIVITIES.length;
 
@@ -52,6 +53,14 @@ export function ScheduleForm({ title, submitLabel, initialValues, isSubmitting, 
 
   const campus = watch("campus");
   const slots = watch("slots");
+
+  const { names: campusNames } = useCampuses();
+  // Formulário novo começa sem núcleo: assume o primeiro cadastrado assim que a lista carrega.
+  useEffect(() => {
+    if (!campus && campusNames.length > 0) {
+      setValue("campus", campusNames[0]);
+    }
+  }, [campus, campusNames, setValue]);
 
   const usedActivityNames = new Set(slots.map((slot) => slot?.name).filter(Boolean));
   const isComplete =
@@ -102,7 +111,7 @@ export function ScheduleForm({ title, submitLabel, initialValues, isSubmitting, 
           control={control}
           render={({ field }) => (
             <TextField {...field} select label="Campus" error={!!errors.campus}>
-              {CAMPUSES.map((c) => (
+              {campusNames.map((c) => (
                 <MenuItem key={c} value={c}>
                   {c}
                 </MenuItem>

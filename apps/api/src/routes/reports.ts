@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { desc, eq, inArray, sql } from "drizzle-orm";
 import type { ExamGradeWithExam } from "@elosmaster/shared";
 import { db } from "../db/client.js";
-import { charges, exams, examGrades, presenceRecords, students } from "../db/schema.js";
+import { campuses, charges, exams, examGrades, presenceRecords, students } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { canAccessStudent, requireRole } from "../middleware/rbac.js";
 import { renderPdf } from "../services/pdf.js";
@@ -70,7 +70,11 @@ reportsRoute.get("/boletim/:studentId", async (c) => {
     .where(eq(presenceRecords.studentId, studentId))
     .orderBy(desc(presenceRecords.classDate));
 
-  const pdf = await renderPdf(boletimHtml(student, grades, examAverages, presence));
+  const campusNames = (await db.select({ name: campuses.name }).from(campuses).orderBy(campuses.name)).map(
+    (campus) => campus.name,
+  );
+
+  const pdf = await renderPdf(boletimHtml(student, grades, examAverages, presence, campusNames));
   return pdfResponse(pdf, `boletim-${student.id}.pdf`);
 });
 

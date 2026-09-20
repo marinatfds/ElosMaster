@@ -8,12 +8,12 @@ import { Box, Button, MenuItem, Paper, TextField, Typography } from "@mui/materi
 import SaveIcon from "@mui/icons-material/Save";
 import { useSnackbar } from "notistack";
 import {
-  CAMPUSES,
   updateTeamMemberSchema,
   type UpdateTeamMemberInput,
 } from "@elosmaster/shared";
 import { getTeamMember, updateTeamMember } from "../api/team";
 import { listTeamPositions } from "../api/team-positions";
+import { useCampuses } from "../hooks/useCampuses";
 
 export function EditTeamMember() {
   const { id } = useParams();
@@ -28,6 +28,7 @@ export function EditTeamMember() {
     enabled: Number.isInteger(memberId),
   });
   const positionsQuery = useQuery({ queryKey: ["team-positions"], queryFn: listTeamPositions });
+  const { names: campusNames } = useCampuses();
 
   const {
     register,
@@ -37,7 +38,7 @@ export function EditTeamMember() {
     formState: { errors, isSubmitting },
   } = useForm<UpdateTeamMemberInput>({
     resolver: zodResolver(updateTeamMemberSchema),
-    defaultValues: { campus: CAMPUSES[0], position: "" },
+    defaultValues: { campus: "", position: "" },
   });
 
   useEffect(() => {
@@ -85,7 +86,7 @@ export function EditTeamMember() {
             control={control}
             render={({ field }) => (
               <TextField {...field} select label="Núcleo" error={!!errors.campus}>
-                {CAMPUSES.map((campus) => (
+                {campusNames.map((campus) => (
                   <MenuItem key={campus} value={campus}>
                     {campus}
                   </MenuItem>

@@ -8,6 +8,7 @@ import { Home } from "./pages/Home";
 import { Students } from "./pages/Students";
 import { Team } from "./pages/Team";
 import { TeamPositions } from "./pages/TeamPositions";
+import { Campuses } from "./pages/Campuses";
 import { NewTeamMember } from "./pages/NewTeamMember";
 import { EditTeamMember } from "./pages/EditTeamMember";
 import { Exams } from "./pages/Exams";
@@ -45,6 +46,7 @@ export function App() {
           </Route>
 
           <Route element={<ProtectedRoute roles={["admin"]} />}>
+            <Route path="/nucleos" element={<Campuses />} />
             <Route path="/equipe/cargos" element={<TeamPositions />} />
             <Route path="/equipe/novo" element={<NewTeamMember />} />
             <Route path="/equipe/:id/editar" element={<EditTeamMember />} />

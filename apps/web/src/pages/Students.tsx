@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Autocomplete,
@@ -29,7 +29,6 @@ import { useSnackbar } from "notistack";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import EditIcon from "@mui/icons-material/Edit";
 import {
-  CAMPUSES,
   createStudentSchema,
   updateStudentSchema,
   type CreateStudentInput,
@@ -40,6 +39,7 @@ import {
 import { createStudent, listStudents, updateStudent } from "../api/students";
 import { getPresenceRoster, savePresence } from "../api/presence";
 import { getBoletimUrl } from "../api/reports";
+import { useCampuses } from "../hooks/useCampuses";
 
 function NewStudentDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const queryClient = useQueryClient();
@@ -49,11 +49,20 @@ function NewStudentDialog({ open, onClose }: { open: boolean; onClose: () => voi
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CreateStudentInput>({
     resolver: zodResolver(createStudentSchema),
-    defaultValues: { campus: CAMPUSES[0], active: true },
+    defaultValues: { campus: "", active: true },
   });
+
+  const { names: campusNames } = useCampuses();
+  const selectedCampus = useWatch({ control, name: "campus" });
+  useEffect(() => {
+    if (!selectedCampus && campusNames.length > 0) {
+      setValue("campus", campusNames[0]);
+    }
+  }, [selectedCampus, campusNames, setValue]);
 
   const mutation = useMutation({
     mutationFn: createStudent,
@@ -84,7 +93,7 @@ function NewStudentDialog({ open, onClose }: { open: boolean; onClose: () => voi
             control={control}
             render={({ field }) => (
               <TextField {...field} select label="Núcleo">
-                {CAMPUSES.map((campus) => (
+                {campusNames.map((campus) => (
                   <MenuItem key={campus} value={campus}>
                     {campus}
                   </MenuItem>
@@ -116,6 +125,7 @@ function EditStudentDialog({ student, onClose }: { student: Student | null; onCl
   } = useForm<UpdateStudentInput>({
     resolver: zodResolver(updateStudentSchema),
   });
+  const { names: campusNames } = useCampuses();
 
   useEffect(() => {
     if (student) {
@@ -151,7 +161,7 @@ function EditStudentDialog({ student, onClose }: { student: Student | null; onCl
             control={control}
             render={({ field }) => (
               <TextField {...field} select label="Núcleo">
-                {CAMPUSES.map((campus) => (
+                {campusNames.map((campus) => (
                   <MenuItem key={campus} value={campus}>
                     {campus}
                   </MenuItem>
@@ -184,7 +194,9 @@ function EditStudentDialog({ student, onClose }: { student: Student | null; onCl
 function RosterTab() {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
-  const [campus, setCampus] = useState<Campus>(CAMPUSES[0]);
+  const { names: campusNames } = useCampuses();
+  const [selectedCampus, setSelectedCampus] = useState<Campus | null>(null);
+  const campus = selectedCampus && campusNames.includes(selectedCampus) ? selectedCampus : (campusNames[0] ?? "");
   const [classDate, setClassDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [period, setPeriod] = useState<"morning" | "afternoon">("morning");
   const [state, setState] = useState<Record<number, { present: boolean; comment: string }>>({});
@@ -192,6 +204,7 @@ function RosterTab() {
   const rosterQuery = useQuery({
     queryKey: ["presence-roster", campus, classDate, period],
     queryFn: () => getPresenceRoster(campus, classDate, period),
+    enabled: campus !== "",
   });
 
   useEffect(() => {
@@ -225,8 +238,8 @@ function RosterTab() {
   return (
     <Box sx={{ mt: 2 }}>
       <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
-        <TextField select label="Núcleo" value={campus} onChange={(e) => setCampus(e.target.value as Campus)}>
-          {CAMPUSES.map((c) => (
+        <TextField select label="Núcleo" value={campus} onChange={(e) => setSelectedCampus(e.target.value)}>
+          {campusNames.map((c) => (
             <MenuItem key={c} value={c}>
               {c}
             </MenuItem>
@@ -318,6 +331,7 @@ function RegistrationTab() {
   const [nameFilter, setNameFilter] = useState<string | null>(null);
   const [campusFilter, setCampusFilter] = useState<Campus | typeof ALL>(ALL);
   const studentsQuery = useQuery({ queryKey: ["students"], queryFn: listStudents });
+  const { names: campusNames } = useCampuses();
 
   const nameOptions = useMemo(
     () => (studentsQuery.data ?? []).map((student) => student.name),
@@ -351,7 +365,7 @@ function RegistrationTab() {
           onChange={(e) => setCampusFilter(e.target.value as Campus | typeof ALL)}
         >
           <MenuItem value={ALL}>Todos</MenuItem>
-          {CAMPUSES.map((campus) => (
+          {campusNames.map((campus) => (
             <MenuItem key={campus} value={campus}>
               {campus}
             </MenuItem>

@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { CAMPUSES } from "../roles.js";
+import { campusNameSchema } from "./campuses.js";
 
 export const createStudentSchema = z.object({
   name: z.string().min(1, "Nome obrigatório"),
-  campus: z.enum(CAMPUSES),
+  campus: campusNameSchema,
   active: z.boolean(),
 });
 

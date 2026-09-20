@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { CAMPUSES } from "@elosmaster/shared";
 import { createSchedule } from "../api/schedules";
 import { ScheduleForm, createEmptySlot } from "../components/ScheduleForm";
 
@@ -27,7 +26,7 @@ export function NewSchedule() {
       title="Novo Horário"
       submitLabel="Salvar"
       isSubmitting={mutation.isPending}
-      initialValues={{ campus: CAMPUSES[0], date: "", slots: [createEmptySlot()] }}
+      initialValues={{ campus: "", date: "", slots: [createEmptySlot()] }}
       onSubmit={(input) => mutation.mutate(input)}
     />
   );

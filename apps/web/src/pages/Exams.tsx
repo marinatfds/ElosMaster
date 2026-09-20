@@ -28,7 +28,6 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import { useSnackbar } from "notistack";
 import {
-  CAMPUSES,
   createExamSchema,
   updateExamSchema,
   type Campus,
@@ -37,6 +36,7 @@ import {
   type UpdateExamInput,
 } from "@elosmaster/shared";
 import { createExam, getExamGrades, listExams, saveExamGrades, updateExam } from "../api/exams";
+import { useCampuses } from "../hooks/useCampuses";
 
 const ALL = "all";
 
@@ -160,6 +160,7 @@ export function Exams() {
   const [campusFilter, setCampusFilter] = useState<Campus | typeof ALL>(ALL);
 
   const examsQuery = useQuery({ queryKey: ["exams"], queryFn: listExams });
+  const { names: campusNames } = useCampuses();
 
   useEffect(() => {
     if (!selectedExamId && examsQuery.data && examsQuery.data.length > 0) {
@@ -273,7 +274,7 @@ export function Exams() {
                 onChange={(e) => setCampusFilter(e.target.value as Campus | typeof ALL)}
               >
                 <MenuItem value={ALL}>Todos</MenuItem>
-                {CAMPUSES.map((campus) => (
+                {campusNames.map((campus) => (
                   <MenuItem key={campus} value={campus}>
                     {campus}
                   </MenuItem>

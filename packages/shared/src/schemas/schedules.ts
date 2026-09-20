@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CAMPUSES } from "../roles.js";
+import { campusNameSchema } from "./campuses.js";
 
 export const SCHEDULE_START_TIME = "08:00";
 
@@ -50,7 +50,7 @@ export const scheduleSlotSchema = z.object({
 export type ScheduleSlot = z.infer<typeof scheduleSlotSchema>;
 
 export const createScheduleSchema = z.object({
-  campus: z.enum(CAMPUSES),
+  campus: campusNameSchema,
   date: z.iso.date(),
   slots: z
     .array(scheduleSlotSchema)

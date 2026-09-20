@@ -1,4 +1,4 @@
-import { CAMPUSES, type Campus, type ExamGradeWithExam } from "@elosmaster/shared";
+import type { Campus, ExamGradeWithExam } from "@elosmaster/shared";
 import type { charges, presenceRecords, students } from "../db/schema.js";
 
 type Student = typeof students.$inferSelect;
@@ -81,13 +81,14 @@ export function boletimHtml(
   grades: ExamGradeWithExam[],
   examAverages: Map<number, ExamAverage>,
   presence: PresenceRecord[],
+  campuses: Campus[],
 ) {
-  const campusHeaders = CAMPUSES.map((campus) => `<th>Média ${escapeHtml(campus)}</th>`).join("");
+  const campusHeaders = campuses.map((campus) => `<th>Média ${escapeHtml(campus)}</th>`).join("");
 
   const gradesRows = grades
     .map((g) => {
       const average = examAverages.get(g.examId);
-      const campusCells = CAMPUSES.map((campus) => `<td>${formatAverage(average?.byCampus[campus])}</td>`).join(
+      const campusCells = campuses.map((campus) => `<td>${formatAverage(average?.byCampus[campus])}</td>`).join(
         "",
       );
       const overallCell = `<td>${average ? average.overall.toFixed(2) : "—"}</td>`;
@@ -109,7 +110,7 @@ export function boletimHtml(
     <h2>Notas</h2>
     <table>
       <thead><tr><th>Simulado</th><th>Data</th><th>Nota</th>${campusHeaders}<th>Média Geral</th></tr></thead>
-      <tbody>${gradesRows || `<tr><td colspan="${4 + CAMPUSES.length}">Nenhuma nota lançada.</td></tr>`}</tbody>
+      <tbody>${gradesRows || `<tr><td colspan="${4 + campuses.length}">Nenhuma nota lançada.</td></tr>`}</tbody>
     </table>
 
     <h2>Presença</h2>

@@ -1,6 +1,7 @@
 export * from "./roles.js";
 export * from "./schemas/auth.js";
 export * from "./schemas/students.js";
+export * from "./schemas/campuses.js";
 export * from "./schemas/team.js";
 export * from "./schemas/alerts.js";
 export * from "./schemas/charges.js";

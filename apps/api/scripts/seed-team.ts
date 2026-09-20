@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { db } from "../src/db/client.js";
-import { teamMembers, teamPositions } from "../src/db/schema.js";
+import { campuses, teamMembers, teamPositions } from "../src/db/schema.js";
 import type { Campus } from "@elosmaster/shared";
 
 const FIRST_NAMES = [
@@ -73,15 +73,17 @@ async function main() {
     throw new Error("Nenhum cargo cadastrado. Rode as migrações (db:migrate) ou cadastre cargos antes.");
   }
 
-  const members = [
-    ...buildCampusMembers("PUC", positions, usedNames, usedEmails),
-    ...buildCampusMembers("FGV", positions, usedNames, usedEmails),
-  ];
+  const campusNames = (await db.select().from(campuses).orderBy(campuses.name)).map((c) => c.name);
+  if (campusNames.length === 0) {
+    throw new Error("Nenhum núcleo cadastrado. Rode as migrações (db:migrate) ou cadastre núcleos antes.");
+  }
+
+  const members = campusNames.flatMap((campus) => buildCampusMembers(campus, positions, usedNames, usedEmails));
 
   await db.delete(teamMembers);
   await db.insert(teamMembers).values(members);
   console.log(
-    `Equipe cadastrada: ${members.length} membros (${positions.length} PUC, ${positions.length} FGV, um por cargo em cada núcleo).`,
+    `Equipe cadastrada: ${members.length} membros (${positions.length} por núcleo: ${campusNames.join(", ")}).`,
   );
   process.exit(0);
 }

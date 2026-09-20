@@ -18,9 +18,10 @@ import {
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import { CAMPUSES, type Campus } from "@elosmaster/shared";
+import type { Campus } from "@elosmaster/shared";
 import { listTeamMembers } from "../api/team";
 import { listTeamPositions } from "../api/team-positions";
+import { useCampuses } from "../hooks/useCampuses";
 import { useAuth } from "../auth/AuthContext";
 
 const ALL = "all";
@@ -35,6 +36,7 @@ export function Team() {
 
   const teamQuery = useQuery({ queryKey: ["team"], queryFn: listTeamMembers });
   const positionsQuery = useQuery({ queryKey: ["team-positions"], queryFn: listTeamPositions });
+  const { names: campusNames } = useCampuses();
 
   const rows = useMemo(() => {
     return (teamQuery.data ?? []).filter(
@@ -59,7 +61,7 @@ export function Team() {
           }}
         >
           <MenuItem value={ALL}>Todos</MenuItem>
-          {CAMPUSES.map((campus) => (
+          {campusNames.map((campus) => (
             <MenuItem key={campus} value={campus}>
               {campus}
             </MenuItem>

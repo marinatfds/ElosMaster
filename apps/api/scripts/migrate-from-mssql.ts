@@ -1,9 +1,9 @@
 import "dotenv/config";
 import sql from "mssql";
 import { eq } from "drizzle-orm";
-import { CAMPUSES, EXPENSE_TYPES, type Campus, type CreateChargeInput } from "@elosmaster/shared";
+import { EXPENSE_TYPES, type Campus, type CreateChargeInput } from "@elosmaster/shared";
 import { db } from "../src/db/client.js";
-import { alerts, charges, teamMembers, teamPositions, users } from "../src/db/schema.js";
+import { alerts, campuses, charges, teamMembers, teamPositions, users } from "../src/db/schema.js";
 
 const FORCE = process.argv.includes("--force");
 const DRY_RUN = process.argv.includes("--dry-run");
@@ -12,10 +12,10 @@ function toDateOnly(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
-function normalizeCampus(raw: string, context: string): Campus | null {
-  const match = CAMPUSES.find((c) => c.toLowerCase() === raw.trim().toLowerCase());
+function normalizeCampus(raw: string, context: string, knownCampuses: Campus[]): Campus | null {
+  const match = knownCampuses.find((c) => c.toLowerCase() === raw.trim().toLowerCase());
   if (!match) {
-    console.warn(`  ! Núcleo desconhecido "${raw}" em ${context} — registro pulado`);
+    console.warn(`  ! Núcleo desconhecido "${raw}" em ${context} — cadastre-o em Núcleos e rode de novo; registro pulado`);
     return null;
   }
   return match;
@@ -111,8 +111,9 @@ async function main() {
   ).recordset as { Name: string; Campus: string; Position: string; Email: string; Phone: string }[];
   summary.team_members = { source: teamRows.length, imported: 0, skipped: 0 };
   const teamToInsert: (typeof teamMembers.$inferInsert)[] = [];
+  const knownCampuses = (await db.select({ name: campuses.name }).from(campuses)).map((c) => c.name);
   for (const row of teamRows) {
-    const campus = normalizeCampus(row.Campus, `Team (${row.Name})`);
+    const campus = normalizeCampus(row.Campus, `Team (${row.Name})`, knownCampuses);
     if (!campus) {
       summary.team_members.skipped++;
       continue;

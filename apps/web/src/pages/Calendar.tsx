@@ -16,20 +16,13 @@ import {
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import type { Campus, DriveSection, Schedule } from "@elosmaster/shared";
+import type { Campus, Schedule } from "@elosmaster/shared";
 import { AnnualCalendar } from "../components/AnnualCalendar";
 import { listSchedules } from "../api/schedules";
+import { useCampuses } from "../hooks/useCampuses";
 
-const SECTION_LABELS: Record<DriveSection, string> = {
-  fgv: "Horário FGV",
-  puc: "Horário PUC",
-  anual: "Calendário Anual",
-};
-
-const SECTION_CAMPUS: Partial<Record<DriveSection, Campus>> = {
-  fgv: "FGV",
-  puc: "PUC",
-};
+const ANNUAL_TAB = "anual";
+const campusTab = (campus: Campus) => `campus:${campus}`;
 
 const weekDateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeZone: "UTC" });
 
@@ -134,17 +127,31 @@ function ScheduleList({ campus }: { campus: Campus }) {
 }
 
 export function Calendar() {
-  const [tab, setTab] = useState<DriveSection>("fgv");
-  const campus = SECTION_CAMPUS[tab];
+  const { names: campusNames, isLoading } = useCampuses();
+  const [selectedTab, setSelectedTab] = useState<string | null>(null);
+
+  // Sem escolha (ou com o núcleo escolhido já removido), abre no primeiro núcleo cadastrado.
+  const availableTabs = [...campusNames.map(campusTab), ANNUAL_TAB];
+  const tab = selectedTab && availableTabs.includes(selectedTab) ? selectedTab : availableTabs[0];
+  const campus = campusNames.find((name) => campusTab(name) === tab);
+
+  if (isLoading) {
+    return (
+      <Box sx={{ p: 4 }}>
+        <Typography color="text.secondary">Carregando...</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 4 }}>
-      <Tabs value={tab} onChange={(_, value) => setTab(value)}>
-        {(Object.keys(SECTION_LABELS) as DriveSection[]).map((section) => (
-          <Tab key={section} label={SECTION_LABELS[section]} value={section} />
+      <Tabs value={tab} onChange={(_, value) => setSelectedTab(value)}>
+        {campusNames.map((name) => (
+          <Tab key={name} label={`Horário ${name}`} value={campusTab(name)} />
         ))}
+        <Tab label="Calendário Anual" value={ANNUAL_TAB} />
       </Tabs>
-      {tab === "anual" && (
+      {tab === ANNUAL_TAB && (
         <Box sx={{ mt: 2 }}>
           <AnnualCalendar />
         </Box>

@@ -20,6 +20,7 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import PersonIcon from "@mui/icons-material/Person";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import LocationCityIcon from "@mui/icons-material/LocationCity";
 import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import type { Role } from "@elosmaster/shared";
@@ -45,6 +46,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/tesouraria", label: "Tesouraria", icon: AccountBalanceWalletIcon, roles: ["admin", "coordinator"] },
   { to: "/horarios", label: "Horários", icon: ScheduleIcon, roles: ["admin"] },
   { to: "/calendario", label: "Calendário", icon: CalendarMonthIcon, roles: ["admin"] },
+  { to: "/nucleos", label: "Núcleos", icon: LocationCityIcon, roles: ["admin"] },
   { to: "/meu-aluno", label: "Meu Aluno", icon: PersonIcon, roles: ["volunteer"] },
 ];
 

@@ -11,19 +11,30 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { CAMPUSES, NOTIFICATION_TYPES, PERIODS, ROLES, type ScheduleSlot } from "@elosmaster/shared";
+import { NOTIFICATION_TYPES, PERIODS, ROLES, type ScheduleSlot } from "@elosmaster/shared";
 
 export const roleEnum = pgEnum("role", ROLES);
-export const campusEnum = pgEnum("campus", CAMPUSES);
 export const periodEnum = pgEnum("period", PERIODS);
 export const notificationTypeEnum = pgEnum("notification_type", NOTIFICATION_TYPES);
 
 const id = () => integer().primaryKey().generatedAlwaysAsIdentity();
 
+export const campuses = pgTable("campuses", {
+  id: id(),
+  name: text().notNull().unique(),
+});
+
+// Alunos, equipe e horários referenciam o campus pelo nome: renomear propaga (CASCADE)
+// e excluir um campus em uso é barrado pelo banco (RESTRICT).
+const campusRef = () =>
+  text()
+    .notNull()
+    .references(() => campuses.name, { onUpdate: "cascade", onDelete: "restrict" });
+
 export const students = pgTable("students", {
   id: id(),
   name: text().notNull(),
-  campus: campusEnum().notNull(),
+  campus: campusRef(),
   active: boolean().notNull().default(true),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
@@ -46,7 +57,7 @@ export const teamPositions = pgTable("team_positions", {
 export const teamMembers = pgTable("team_members", {
   id: id(),
   name: text().notNull(),
-  campus: campusEnum().notNull(),
+  campus: campusRef(),
   position: text().notNull(),
   email: text().notNull(),
   phone: text().notNull(),
@@ -111,7 +122,7 @@ export const schedules = pgTable(
   "schedules",
   {
     id: id(),
-    campus: campusEnum().notNull(),
+    campus: campusRef(),
     date: date().notNull(),
     slots: jsonb().notNull().$type<ScheduleSlot[]>(),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),

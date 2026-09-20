@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import { Link as RouterLink } from "react-router-dom";
@@ -7,12 +8,12 @@ import { Box, Button, MenuItem, Paper, TextField, Typography } from "@mui/materi
 import SaveIcon from "@mui/icons-material/Save";
 import { useSnackbar } from "notistack";
 import {
-  CAMPUSES,
   createTeamMemberSchema,
   type CreateTeamMemberInput,
 } from "@elosmaster/shared";
 import { createTeamMember } from "../api/team";
 import { listTeamPositions } from "../api/team-positions";
+import { useCampuses } from "../hooks/useCampuses";
 
 export function NewTeamMember() {
   const queryClient = useQueryClient();
@@ -24,11 +25,20 @@ export function NewTeamMember() {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CreateTeamMemberInput>({
     resolver: zodResolver(createTeamMemberSchema),
-    defaultValues: { campus: CAMPUSES[0], position: "" },
+    defaultValues: { campus: "", position: "" },
   });
+
+  const { names: campusNames } = useCampuses();
+  const selectedCampus = useWatch({ control, name: "campus" });
+  useEffect(() => {
+    if (!selectedCampus && campusNames.length > 0) {
+      setValue("campus", campusNames[0]);
+    }
+  }, [selectedCampus, campusNames, setValue]);
 
   const mutation = useMutation({
     mutationFn: createTeamMember,
@@ -64,7 +74,7 @@ export function NewTeamMember() {
           control={control}
           render={({ field }) => (
             <TextField {...field} select label="Núcleo" error={!!errors.campus}>
-              {CAMPUSES.map((campus) => (
+              {campusNames.map((campus) => (
                 <MenuItem key={campus} value={campus}>
                   {campus}
                 </MenuItem>

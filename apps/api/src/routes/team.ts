@@ -6,6 +6,7 @@ import { db } from "../db/client.js";
 import { teamMembers, teamPositions } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { requireRole } from "../middleware/rbac.js";
+import { isForeignKeyViolation, UNKNOWN_CAMPUS_MESSAGE } from "../services/campuses.js";
 import type { AppVariables } from "../types.js";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -44,32 +45,42 @@ teamRoute.get("/:id", async (c) => {
 
 teamRoute.post("/", requireRole("admin"), zValidator("json", createTeamMemberSchema), async (c) => {
   const input = c.req.valid("json");
-  const member = await db.transaction(async (tx) => {
-    if (!(await lockPosition(tx, input.position))) return UNKNOWN_POSITION;
-    const [created] = await tx.insert(teamMembers).values(input).returning();
-    return created;
-  });
-  if (member === UNKNOWN_POSITION) {
-    return c.json({ error: "Cargo inexistente" }, 400);
+  try {
+    const member = await db.transaction(async (tx) => {
+      if (!(await lockPosition(tx, input.position))) return UNKNOWN_POSITION;
+      const [created] = await tx.insert(teamMembers).values(input).returning();
+      return created;
+    });
+    if (member === UNKNOWN_POSITION) {
+      return c.json({ error: "Cargo inexistente" }, 400);
+    }
+    return c.json(member, 201);
+  } catch (err) {
+    if (isForeignKeyViolation(err)) return c.json({ error: UNKNOWN_CAMPUS_MESSAGE }, 400);
+    throw err;
   }
-  return c.json(member, 201);
 });
 
 teamRoute.put("/:id", requireRole("admin"), zValidator("json", updateTeamMemberSchema), async (c) => {
   const id = Number(c.req.param("id"));
   const input = c.req.valid("json");
-  const member = await db.transaction(async (tx) => {
-    if (!(await lockPosition(tx, input.position))) return UNKNOWN_POSITION;
-    const [updated] = await tx.update(teamMembers).set(input).where(eq(teamMembers.id, id)).returning();
-    return updated;
-  });
-  if (member === UNKNOWN_POSITION) {
-    return c.json({ error: "Cargo inexistente" }, 400);
+  try {
+    const member = await db.transaction(async (tx) => {
+      if (!(await lockPosition(tx, input.position))) return UNKNOWN_POSITION;
+      const [updated] = await tx.update(teamMembers).set(input).where(eq(teamMembers.id, id)).returning();
+      return updated;
+    });
+    if (member === UNKNOWN_POSITION) {
+      return c.json({ error: "Cargo inexistente" }, 400);
+    }
+    if (!member) {
+      return c.json({ error: "Membro não encontrado" }, 404);
+    }
+    return c.json(member);
+  } catch (err) {
+    if (isForeignKeyViolation(err)) return c.json({ error: UNKNOWN_CAMPUS_MESSAGE }, 400);
+    throw err;
   }
-  if (!member) {
-    return c.json({ error: "Membro não encontrado" }, 404);
-  }
-  return c.json(member);
 });
 
 export default teamRoute;

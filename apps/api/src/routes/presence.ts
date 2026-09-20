@@ -1,12 +1,7 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { and, eq, sql } from "drizzle-orm";
-import {
-  bulkPresenceSchema,
-  CAMPUSES,
-  PERIODS,
-  type RosterPresence,
-} from "@elosmaster/shared";
+import { bulkPresenceSchema, PERIODS, type RosterPresence } from "@elosmaster/shared";
 import { db } from "../db/client.js";
 import { presenceRecords, students } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
@@ -26,7 +21,7 @@ presenceRoute.get("/roster", async (c) => {
   const classDate = c.req.query("classDate");
   const period = c.req.query("period");
 
-  if (!campus || !CAMPUSES.includes(campus as (typeof CAMPUSES)[number])) {
+  if (!campus) {
     return c.json({ error: "Parâmetro 'campus' inválido" }, 400);
   }
   if (!classDate) {
@@ -52,7 +47,7 @@ presenceRoute.get("/roster", async (c) => {
         eq(presenceRecords.period, period as (typeof PERIODS)[number]),
       ),
     )
-    .where(and(eq(students.campus, campus as (typeof CAMPUSES)[number]), eq(students.active, true)))
+    .where(and(eq(students.campus, campus), eq(students.active, true)))
     .orderBy(students.name);
 
   const result: RosterPresence[] = rows.map((row) => ({

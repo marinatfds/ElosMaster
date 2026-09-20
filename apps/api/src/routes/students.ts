@@ -6,6 +6,7 @@ import { db } from "../db/client.js";
 import { students, examGrades, exams, presenceRecords } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { canAccessStudent, requireRole } from "../middleware/rbac.js";
+import { isForeignKeyViolation, UNKNOWN_CAMPUS_MESSAGE } from "../services/campuses.js";
 import type { AppVariables } from "../types.js";
 
 const studentsRoute = new Hono<{ Variables: AppVariables }>();
@@ -75,18 +76,28 @@ studentsRoute.get("/:id/presence", async (c) => {
 
 studentsRoute.post("/", requireRole("admin", "coordinator"), zValidator("json", createStudentSchema), async (c) => {
   const input = c.req.valid("json");
-  const [student] = await db.insert(students).values(input).returning();
-  return c.json(student, 201);
+  try {
+    const [student] = await db.insert(students).values(input).returning();
+    return c.json(student, 201);
+  } catch (err) {
+    if (isForeignKeyViolation(err)) return c.json({ error: UNKNOWN_CAMPUS_MESSAGE }, 400);
+    throw err;
+  }
 });
 
 studentsRoute.put("/:id", requireRole("admin", "coordinator"), zValidator("json", updateStudentSchema), async (c) => {
   const id = Number(c.req.param("id"));
   const input = c.req.valid("json");
-  const [student] = await db.update(students).set(input).where(eq(students.id, id)).returning();
-  if (!student) {
-    return c.json({ error: "Aluno não encontrado" }, 404);
+  try {
+    const [student] = await db.update(students).set(input).where(eq(students.id, id)).returning();
+    if (!student) {
+      return c.json({ error: "Aluno não encontrado" }, 404);
+    }
+    return c.json(student);
+  } catch (err) {
+    if (isForeignKeyViolation(err)) return c.json({ error: UNKNOWN_CAMPUS_MESSAGE }, 400);
+    throw err;
   }
-  return c.json(student);
 });
 
 export default studentsRoute;

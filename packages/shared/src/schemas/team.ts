@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CAMPUSES } from "../roles.js";
+import { campusNameSchema } from "./campuses.js";
 
 export const createTeamPositionSchema = z.object({
   name: z.string().trim().min(1, "Nome obrigatório").max(100, "Nome muito longo"),
@@ -20,7 +20,7 @@ export type TeamPosition = z.infer<typeof teamPositionSchema>;
 
 export const createTeamMemberSchema = z.object({
   name: z.string().min(1, "Nome obrigatório"),
-  campus: z.enum(CAMPUSES),
+  campus: campusNameSchema,
   position: z.string().min(1, "Cargo obrigatório"),
   email: z.email(),
   phone: z.string().min(1, "Telefone obrigatório"),

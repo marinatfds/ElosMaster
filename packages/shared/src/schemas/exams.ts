@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CAMPUSES } from "../roles.js";
+import { campusNameSchema } from "./campuses.js";
 
 export const createExamSchema = z.object({
   name: z.string().min(1, "Nome obrigatório"),
@@ -41,7 +41,7 @@ export type BulkSetExamGradesInput = z.infer<typeof bulkSetExamGradesSchema>;
 export const examGradeWithStudentSchema = z.object({
   studentId: z.number().int(),
   studentName: z.string(),
-  campus: z.enum(CAMPUSES),
+  campus: campusNameSchema,
   grade: z.number().nullable(),
 });
 
