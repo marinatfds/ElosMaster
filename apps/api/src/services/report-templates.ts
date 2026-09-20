@@ -96,10 +96,11 @@ export function boletimHtml(
     })
     .join("");
 
-  const presenceRows = presence
+  const absences = presence.filter((p) => !p.present);
+  const absenceRows = absences
     .map(
       (p) =>
-        `<tr><td>${dateFormatter.format(new Date(p.classDate))}</td><td>${periodLabels[p.period]}</td><td>${p.present ? "Presente" : "Ausente"}</td><td>${p.comment ? escapeHtml(p.comment) : ""}</td></tr>`,
+        `<tr><td>${dateFormatter.format(new Date(p.classDate))}</td><td>${periodLabels[p.period]}</td><td>${p.comment ? escapeHtml(p.comment) : ""}</td></tr>`,
     )
     .join("");
 
@@ -113,10 +114,10 @@ export function boletimHtml(
       <tbody>${gradesRows || `<tr><td colspan="${4 + campuses.length}">Nenhuma nota lançada.</td></tr>`}</tbody>
     </table>
 
-    <h2>Presença</h2>
+    <h2>Faltas (${absences.length})</h2>
     <table>
-      <thead><tr><th>Data</th><th>Período</th><th>Situação</th><th>Observação</th></tr></thead>
-      <tbody>${presenceRows || '<tr><td colspan="4">Nenhum registro de presença.</td></tr>'}</tbody>
+      <thead><tr><th>Data</th><th>Período</th><th>Observação</th></tr></thead>
+      <tbody>${absenceRows || '<tr><td colspan="3">Nenhuma falta registrada.</td></tr>'}</tbody>
     </table>
   `;
 
