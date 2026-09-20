@@ -3,7 +3,7 @@ import sql from "mssql";
 import { eq } from "drizzle-orm";
 import { CAMPUSES, EXPENSE_TYPES, type Campus, type CreateChargeInput } from "@elosmaster/shared";
 import { db } from "../src/db/client.js";
-import { alerts, charges, teamMembers, users } from "../src/db/schema.js";
+import { alerts, charges, teamMembers, teamPositions, users } from "../src/db/schema.js";
 
 const FORCE = process.argv.includes("--force");
 const DRY_RUN = process.argv.includes("--dry-run");
@@ -145,7 +145,11 @@ async function main() {
     await db.transaction(async (tx) => {
       if (alertsToInsert.length > 0) await tx.insert(alerts).values(alertsToInsert);
       if (chargesToInsert.length > 0) await tx.insert(charges).values(chargesToInsert);
-      if (teamToInsert.length > 0) await tx.insert(teamMembers).values(teamToInsert);
+      if (teamToInsert.length > 0) {
+        const positionNames = [...new Set(teamToInsert.map((member) => member.position))];
+        await tx.insert(teamPositions).values(positionNames.map((name) => ({ name }))).onConflictDoNothing();
+        await tx.insert(teamMembers).values(teamToInsert);
+      }
     });
   }
 

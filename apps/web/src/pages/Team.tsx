@@ -18,8 +18,9 @@ import {
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import { CAMPUSES, TEAM_POSITIONS, type Campus, type TeamPosition } from "@elosmaster/shared";
+import { CAMPUSES, type Campus } from "@elosmaster/shared";
 import { listTeamMembers } from "../api/team";
+import { listTeamPositions } from "../api/team-positions";
 import { useAuth } from "../auth/AuthContext";
 
 const ALL = "all";
@@ -28,11 +29,12 @@ export function Team() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [campusFilter, setCampusFilter] = useState<Campus | typeof ALL>(ALL);
-  const [positionFilter, setPositionFilter] = useState<TeamPosition | typeof ALL>(ALL);
+  const [positionFilter, setPositionFilter] = useState<string>(ALL);
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
   const teamQuery = useQuery({ queryKey: ["team"], queryFn: listTeamMembers });
+  const positionsQuery = useQuery({ queryKey: ["team-positions"], queryFn: listTeamPositions });
 
   const rows = useMemo(() => {
     return (teamQuery.data ?? []).filter(
@@ -70,18 +72,23 @@ export function Team() {
           sx={{ minWidth: 220 }}
           value={positionFilter}
           onChange={(e) => {
-            setPositionFilter(e.target.value as TeamPosition | typeof ALL);
+            setPositionFilter(e.target.value);
             setPage(0);
           }}
         >
           <MenuItem value={ALL}>Todos</MenuItem>
-          {TEAM_POSITIONS.map((position) => (
-            <MenuItem key={position} value={position}>
-              {position}
+          {(positionsQuery.data ?? []).map((position) => (
+            <MenuItem key={position.id} value={position.name}>
+              {position.name}
             </MenuItem>
           ))}
         </TextField>
         <Box sx={{ flex: 1 }} />
+        {isAdmin && (
+          <Button component={RouterLink} to="/equipe/cargos" variant="outlined">
+            Gerenciar cargos
+          </Button>
+        )}
         {isAdmin && (
           <Button component={RouterLink} to="/equipe/novo" variant="contained">
             Adicionar

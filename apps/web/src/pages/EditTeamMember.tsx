@@ -9,11 +9,11 @@ import SaveIcon from "@mui/icons-material/Save";
 import { useSnackbar } from "notistack";
 import {
   CAMPUSES,
-  TEAM_POSITIONS,
   updateTeamMemberSchema,
   type UpdateTeamMemberInput,
 } from "@elosmaster/shared";
 import { getTeamMember, updateTeamMember } from "../api/team";
+import { listTeamPositions } from "../api/team-positions";
 
 export function EditTeamMember() {
   const { id } = useParams();
@@ -27,6 +27,7 @@ export function EditTeamMember() {
     queryFn: () => getTeamMember(memberId),
     enabled: Number.isInteger(memberId),
   });
+  const positionsQuery = useQuery({ queryKey: ["team-positions"], queryFn: listTeamPositions });
 
   const {
     register,
@@ -36,7 +37,7 @@ export function EditTeamMember() {
     formState: { errors, isSubmitting },
   } = useForm<UpdateTeamMemberInput>({
     resolver: zodResolver(updateTeamMemberSchema),
-    defaultValues: { campus: CAMPUSES[0], position: TEAM_POSITIONS[0] },
+    defaultValues: { campus: CAMPUSES[0], position: "" },
   });
 
   useEffect(() => {
@@ -66,7 +67,7 @@ export function EditTeamMember() {
       {memberQuery.isLoading && <Typography color="text.secondary">Carregando...</Typography>}
       {memberQuery.isError && <Typography color="error">Não foi possível carregar o membro.</Typography>}
 
-      {memberQuery.data && (
+      {memberQuery.data && positionsQuery.data && (
         <Paper
           component="form"
           onSubmit={handleSubmit((input) => mutation.mutate(input))}
@@ -97,10 +98,16 @@ export function EditTeamMember() {
             name="position"
             control={control}
             render={({ field }) => (
-              <TextField {...field} select label="Cargo" error={!!errors.position}>
-                {TEAM_POSITIONS.map((position) => (
-                  <MenuItem key={position} value={position}>
-                    {position}
+              <TextField
+                {...field}
+                select
+                label="Cargo"
+                error={!!errors.position}
+                helperText={errors.position?.message}
+              >
+                {positionsQuery.data.map((position) => (
+                  <MenuItem key={position.id} value={position.name}>
+                    {position.name}
                   </MenuItem>
                 ))}
               </TextField>

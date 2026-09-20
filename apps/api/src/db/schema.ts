@@ -38,6 +38,11 @@ export const users = pgTable("users", {
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 
+export const teamPositions = pgTable("team_positions", {
+  id: id(),
+  name: text().notNull().unique(),
+});
+
 export const teamMembers = pgTable("team_members", {
   id: id(),
   name: text().notNull(),

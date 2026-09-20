@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { db } from "../src/db/client.js";
-import { teamMembers } from "../src/db/schema.js";
-import { TEAM_POSITIONS, type Campus } from "@elosmaster/shared";
+import { teamMembers, teamPositions } from "../src/db/schema.js";
+import type { Campus } from "@elosmaster/shared";
 
 const FIRST_NAMES = [
   "Ana", "Bruno", "Carla", "Daniel", "Eduarda", "Felipe", "Gabriela", "Henrique",
@@ -55,23 +55,33 @@ function buildMember(campus: Campus, position: string, usedNames: Set<string>, u
   };
 }
 
-function buildCampusMembers(campus: Campus, usedNames: Set<string>, usedEmails: Set<string>) {
-  return TEAM_POSITIONS.map((position) => buildMember(campus, position, usedNames, usedEmails));
+function buildCampusMembers(
+  campus: Campus,
+  positions: string[],
+  usedNames: Set<string>,
+  usedEmails: Set<string>,
+) {
+  return positions.map((position) => buildMember(campus, position, usedNames, usedEmails));
 }
 
 async function main() {
   const usedNames = new Set<string>();
   const usedEmails = new Set<string>();
 
+  const positions = (await db.select().from(teamPositions).orderBy(teamPositions.id)).map((p) => p.name);
+  if (positions.length === 0) {
+    throw new Error("Nenhum cargo cadastrado. Rode as migrações (db:migrate) ou cadastre cargos antes.");
+  }
+
   const members = [
-    ...buildCampusMembers("PUC", usedNames, usedEmails),
-    ...buildCampusMembers("FGV", usedNames, usedEmails),
+    ...buildCampusMembers("PUC", positions, usedNames, usedEmails),
+    ...buildCampusMembers("FGV", positions, usedNames, usedEmails),
   ];
 
   await db.delete(teamMembers);
   await db.insert(teamMembers).values(members);
   console.log(
-    `Equipe cadastrada: ${members.length} membros (${TEAM_POSITIONS.length} PUC, ${TEAM_POSITIONS.length} FGV, um por cargo em cada núcleo).`,
+    `Equipe cadastrada: ${members.length} membros (${positions.length} PUC, ${positions.length} FGV, um por cargo em cada núcleo).`,
   );
   process.exit(0);
 }

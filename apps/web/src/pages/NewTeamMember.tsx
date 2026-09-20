@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -8,16 +8,17 @@ import SaveIcon from "@mui/icons-material/Save";
 import { useSnackbar } from "notistack";
 import {
   CAMPUSES,
-  TEAM_POSITIONS,
   createTeamMemberSchema,
   type CreateTeamMemberInput,
 } from "@elosmaster/shared";
 import { createTeamMember } from "../api/team";
+import { listTeamPositions } from "../api/team-positions";
 
 export function NewTeamMember() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const positionsQuery = useQuery({ queryKey: ["team-positions"], queryFn: listTeamPositions });
 
   const {
     register,
@@ -26,7 +27,7 @@ export function NewTeamMember() {
     formState: { errors, isSubmitting },
   } = useForm<CreateTeamMemberInput>({
     resolver: zodResolver(createTeamMemberSchema),
-    defaultValues: { campus: CAMPUSES[0], position: TEAM_POSITIONS[0] },
+    defaultValues: { campus: CAMPUSES[0], position: "" },
   });
 
   const mutation = useMutation({
@@ -76,10 +77,16 @@ export function NewTeamMember() {
           name="position"
           control={control}
           render={({ field }) => (
-            <TextField {...field} select label="Cargo" error={!!errors.position}>
-              {TEAM_POSITIONS.map((position) => (
-                <MenuItem key={position} value={position}>
-                  {position}
+            <TextField
+              {...field}
+              select
+              label="Cargo"
+              error={!!errors.position}
+              helperText={errors.position?.message}
+            >
+              {(positionsQuery.data ?? []).map((position) => (
+                <MenuItem key={position.id} value={position.name}>
+                  {position.name}
                 </MenuItem>
               ))}
             </TextField>

@@ -1,26 +1,27 @@
 import { z } from "zod";
 import { CAMPUSES } from "../roles.js";
 
-export const TEAM_POSITIONS = [
-  "Monitor(a) de Matemática",
-  "Coordenador(a) de Monitoria",
-  "Professor(a) de Roda",
-  "Professor(a) de Escrita",
-  "Professor(a) de Leitura",
-  "Professor(a) de PCS",
-  "Professor(a) de Álgebra",
-  "Professor(a) de Geometria",
-  "Professor(a) de Aritmética",
-  "Coordenador(a)",
-  "Assistente de Coordenação",
-] as const;
+export const createTeamPositionSchema = z.object({
+  name: z.string().trim().min(1, "Nome obrigatório").max(100, "Nome muito longo"),
+});
 
-export type TeamPosition = (typeof TEAM_POSITIONS)[number];
+export type CreateTeamPositionInput = z.infer<typeof createTeamPositionSchema>;
+
+export const updateTeamPositionSchema = createTeamPositionSchema;
+
+export type UpdateTeamPositionInput = z.infer<typeof updateTeamPositionSchema>;
+
+export const teamPositionSchema = createTeamPositionSchema.extend({
+  id: z.number().int(),
+  memberCount: z.number().int(),
+});
+
+export type TeamPosition = z.infer<typeof teamPositionSchema>;
 
 export const createTeamMemberSchema = z.object({
   name: z.string().min(1, "Nome obrigatório"),
   campus: z.enum(CAMPUSES),
-  position: z.enum(TEAM_POSITIONS),
+  position: z.string().min(1, "Cargo obrigatório"),
   email: z.email(),
   phone: z.string().min(1, "Telefone obrigatório"),
 });
