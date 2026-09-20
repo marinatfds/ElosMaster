@@ -8,6 +8,5 @@ export * from "./schemas/charges.js";
 export * from "./schemas/exams.js";
 export * from "./schemas/presence.js";
 export * from "./schemas/notifications.js";
-export * from "./schemas/drive.js";
 export * from "./schemas/schedules.js";
 export * from "./schemas/calendar.js";

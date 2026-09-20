@@ -20,7 +20,6 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
-    "googleapis": "^181.0.0",
     "hono": "^4.13.8",
     "postgres": "^3.4.9",
     "puppeteer": "^25.11.0",

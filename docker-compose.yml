@@ -29,10 +29,6 @@ services:
       CORS_ORIGIN: ${WEB_ORIGIN:?defina WEB_ORIGIN, ex: https://app.seudominio.com}
       DATABASE_URL: postgres://elosmaster:${POSTGRES_PASSWORD}@postgres:5432/elosmaster
       JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET}
-      GOOGLE_SERVICE_ACCOUNT_KEY_PATH: /run/secrets/google-service-account.json
-      GOOGLE_DRIVE_FOLDER_ID: ${GOOGLE_DRIVE_FOLDER_ID}
-    volumes:
-      - ./apps/api/secrets/google-service-account.json:/run/secrets/google-service-account.json:ro
     ports:
       - "8787:8787"
 

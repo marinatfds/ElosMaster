@@ -1,7 +1,7 @@
 # ElosMaster
 
 Sistema de gestão para a equipe/academia ElosMaster: alunos, presença, simulados, alertas,
-tesouraria, relatórios em PDF, notificações em tempo real e documentos do Google Drive.
+tesouraria, relatórios em PDF, notificações em tempo real.
 
 Monorepo (npm workspaces):
 
@@ -58,7 +58,7 @@ node apps/api/dist/index.js                  # sobe a API
 ```
 
 Veja [`DEPLOY.md`](./DEPLOY.md) para o checklist completo de cutover (variáveis de ambiente de
-produção, configuração do Google Drive, migração de dados do SQL Server antigo, Docker).
+produção, migração de dados do SQL Server antigo, Docker).
 
 ## Funcionalidades por fase
 
@@ -67,5 +67,4 @@ produção, configuração do Google Drive, migração de dados do SQL Server an
 3. Simulados (notas) e Presença, com visão restrita para `volunteer`
 4. Notificações em tempo real (SSE) com persistência, sino no menu
 5. Relatórios em PDF (boletim do aluno, extrato financeiro) via Puppeteer
-6. Documentos do Google Drive na tela Calendário (Service Account)
-7. Script de migração de dados do SQL Server antigo (`apps/api/scripts/migrate-from-mssql.ts`)
+6. Script de migração de dados do SQL Server antigo (`apps/api/scripts/migrate-from-mssql.ts`)
