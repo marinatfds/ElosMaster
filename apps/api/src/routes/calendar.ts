@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import {
+  createCancelledClassSchema,
   createExtraClassSchema,
   DEFAULT_AULA_WEEKDAYS,
   updateAulaWeekdaysSchema,
@@ -9,7 +10,7 @@ import {
   type AnnualCalendarData,
 } from "@elosmaster/shared";
 import { db } from "../db/client.js";
-import { calendarSettings, extraClasses, exams } from "../db/schema.js";
+import { calendarSettings, cancelledClasses, extraClasses, exams } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { requireRole } from "../middleware/rbac.js";
 import { getHolidaysInRange } from "../services/holidays.js";
@@ -22,6 +23,7 @@ calendarRoute.use("*", authMiddleware);
 calendarRoute.get("/", async (c) => {
   const [settingsRow] = await db.select().from(calendarSettings).limit(1);
   const extraClassRows = await db.select().from(extraClasses).orderBy(extraClasses.date);
+  const cancelledClassRows = await db.select().from(cancelledClasses).orderBy(cancelledClasses.date);
   const examRows = await db.select({ examDate: exams.examDate }).from(exams).orderBy(exams.examDate);
 
   const aulaStart = settingsRow?.aulaStart ?? null;
@@ -31,6 +33,7 @@ calendarRoute.get("/", async (c) => {
   const result: AnnualCalendarData = {
     settings: { aulaStart, aulaEnd, aulaWeekdays: settingsRow?.aulaWeekdays ?? DEFAULT_AULA_WEEKDAYS },
     extraClasses: extraClassRows,
+    cancelledClasses: cancelledClassRows,
     examDates: examRows.map((row) => row.examDate),
     holidays,
   };
@@ -95,6 +98,26 @@ calendarRoute.post(
 calendarRoute.delete("/extra-classes/:id", requireRole("admin"), async (c) => {
   const id = Number(c.req.param("id"));
   await db.delete(extraClasses).where(eq(extraClasses.id, id));
+  return c.body(null, 204);
+});
+
+calendarRoute.post(
+  "/cancelled-classes",
+  requireRole("admin"),
+  zValidator("json", createCancelledClassSchema),
+  async (c) => {
+    const input = c.req.valid("json");
+    const [row] = await db.insert(cancelledClasses).values(input).onConflictDoNothing().returning();
+    if (!row) {
+      return c.json({ error: "Essa data já está cadastrada como aula cancelada" }, 409);
+    }
+    return c.json(row, 201);
+  },
+);
+
+calendarRoute.delete("/cancelled-classes/:id", requireRole("admin"), async (c) => {
+  const id = Number(c.req.param("id"));
+  await db.delete(cancelledClasses).where(eq(cancelledClasses.id, id));
   return c.body(null, 204);
 });
 

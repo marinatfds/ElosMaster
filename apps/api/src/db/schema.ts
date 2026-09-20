@@ -143,6 +143,11 @@ export const extraClasses = pgTable("extra_classes", {
   date: date().notNull().unique(),
 });
 
+export const cancelledClasses = pgTable("cancelled_classes", {
+  id: id(),
+  date: date().notNull().unique(),
+});
+
 export const notifications = pgTable("notifications", {
   id: id(),
   targetUserId: integer().references(() => users.id),

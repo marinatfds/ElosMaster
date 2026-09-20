@@ -22,11 +22,12 @@ import { useSnackbar } from "notistack";
 import {
   updateCalendarSettingsSchema,
   type CalendarSettings,
-  type CreateExtraClassInput,
   type UpdateCalendarSettingsInput,
 } from "@elosmaster/shared";
 import {
+  createCancelledClass,
   createExtraClass,
+  deleteCancelledClass,
   deleteExtraClass,
   getAnnualCalendar,
   updateAulaWeekdays,
@@ -166,33 +167,66 @@ function AulasForm({ settings }: { settings: CalendarSettings }) {
   );
 }
 
-function AulasExtrasList({ extraClasses }: { extraClasses: { id: number; date: string }[] }) {
+type DateListItem = { id: number; date: string };
+
+type DateListCardProps = {
+  title: string;
+  description?: string;
+  emptyMessage: string;
+  addedMessage: string;
+  addErrorMessage: string;
+  removedMessage: string;
+  removeErrorMessage: string;
+  removeAriaLabel: string;
+  items: DateListItem[];
+  onAdd: (date: string) => Promise<unknown>;
+  onRemove: (id: number) => Promise<unknown>;
+};
+
+function DateListCard({
+  title,
+  description,
+  emptyMessage,
+  addedMessage,
+  addErrorMessage,
+  removedMessage,
+  removeErrorMessage,
+  removeAriaLabel,
+  items,
+  onAdd,
+  onRemove,
+}: DateListCardProps) {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const [newDate, setNewDate] = useState("");
 
   const addMutation = useMutation({
-    mutationFn: (input: CreateExtraClassInput) => createExtraClass(input),
+    mutationFn: onAdd,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["calendar"] });
       setNewDate("");
-      enqueueSnackbar("Aula extra adicionada", { variant: "success" });
+      enqueueSnackbar(addedMessage, { variant: "success" });
     },
-    onError: () => enqueueSnackbar("Não foi possível adicionar a aula extra", { variant: "error" }),
+    onError: () => enqueueSnackbar(addErrorMessage, { variant: "error" }),
   });
 
   const removeMutation = useMutation({
-    mutationFn: (id: number) => deleteExtraClass(id),
+    mutationFn: onRemove,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["calendar"] });
-      enqueueSnackbar("Aula extra removida", { variant: "success" });
+      enqueueSnackbar(removedMessage, { variant: "success" });
     },
-    onError: () => enqueueSnackbar("Não foi possível remover a aula extra", { variant: "error" }),
+    onError: () => enqueueSnackbar(removeErrorMessage, { variant: "error" }),
   });
 
   return (
     <Paper sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}>
-      <Typography variant="h6">Aulas extras</Typography>
+      <Typography variant="h6">{title}</Typography>
+      {description && (
+        <Typography variant="body2" color="text.secondary">
+          {description}
+        </Typography>
+      )}
       <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
         <TextField
           label="Data"
@@ -205,26 +239,22 @@ function AulasExtrasList({ extraClasses }: { extraClasses: { id: number; date: s
         <Button
           variant="outlined"
           disabled={!newDate || addMutation.isPending}
-          onClick={() => addMutation.mutate({ date: newDate })}
+          onClick={() => addMutation.mutate(newDate)}
         >
           Adicionar
         </Button>
       </Box>
-      {extraClasses.length === 0 ? (
+      {items.length === 0 ? (
         <Typography variant="body2" color="text.secondary">
-          Nenhuma aula extra cadastrada.
+          {emptyMessage}
         </Typography>
       ) : (
         <List dense>
-          {extraClasses.map((item) => (
+          {items.map((item) => (
             <ListItem
               key={item.id}
               secondaryAction={
-                <IconButton
-                  edge="end"
-                  aria-label="Remover aula extra"
-                  onClick={() => removeMutation.mutate(item.id)}
-                >
+                <IconButton edge="end" aria-label={removeAriaLabel} onClick={() => removeMutation.mutate(item.id)}>
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               }
@@ -235,6 +265,41 @@ function AulasExtrasList({ extraClasses }: { extraClasses: { id: number; date: s
         </List>
       )}
     </Paper>
+  );
+}
+
+function AulasExtrasList({ extraClasses }: { extraClasses: DateListItem[] }) {
+  return (
+    <DateListCard
+      title="Aulas extras"
+      emptyMessage="Nenhuma aula extra cadastrada."
+      addedMessage="Aula extra adicionada"
+      addErrorMessage="Não foi possível adicionar a aula extra"
+      removedMessage="Aula extra removida"
+      removeErrorMessage="Não foi possível remover a aula extra"
+      removeAriaLabel="Remover aula extra"
+      items={extraClasses}
+      onAdd={(date) => createExtraClass({ date })}
+      onRemove={deleteExtraClass}
+    />
+  );
+}
+
+function AulasCanceladasList({ cancelledClasses }: { cancelledClasses: DateListItem[] }) {
+  return (
+    <DateListCard
+      title="Aulas canceladas"
+      description="As datas abaixo deixam de ser marcadas como aula no calendário anual."
+      emptyMessage="Nenhuma aula cancelada cadastrada."
+      addedMessage="Aula cancelada adicionada"
+      addErrorMessage="Não foi possível adicionar a aula cancelada"
+      removedMessage="Aula cancelada removida"
+      removeErrorMessage="Não foi possível remover a aula cancelada"
+      removeAriaLabel="Remover aula cancelada"
+      items={cancelledClasses}
+      onAdd={(date) => createCancelledClass({ date })}
+      onRemove={deleteCancelledClass}
+    />
   );
 }
 
@@ -308,6 +373,7 @@ export function CalendarAdmin() {
           />
           <AulasForm key={`${query.data.settings.aulaStart}-${query.data.settings.aulaEnd}`} settings={query.data.settings} />
           <AulasExtrasList extraClasses={query.data.extraClasses} />
+          <AulasCanceladasList cancelledClasses={query.data.cancelledClasses} />
           <SimuladosPreview examDates={query.data.examDates} />
           <FeriadosPreview holidays={query.data.holidays} />
         </>

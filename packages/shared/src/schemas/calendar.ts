@@ -46,6 +46,18 @@ export const extraClassSchema = createExtraClassSchema.extend({
 
 export type ExtraClass = z.infer<typeof extraClassSchema>;
 
+export const createCancelledClassSchema = z.object({
+  date: z.iso.date(),
+});
+
+export type CreateCancelledClassInput = z.infer<typeof createCancelledClassSchema>;
+
+export const cancelledClassSchema = createCancelledClassSchema.extend({
+  id: z.number().int(),
+});
+
+export type CancelledClass = z.infer<typeof cancelledClassSchema>;
+
 export const holidaySchema = z.object({
   date: z.iso.date(),
   name: z.string(),
@@ -56,6 +68,7 @@ export type Holiday = z.infer<typeof holidaySchema>;
 export const annualCalendarDataSchema = z.object({
   settings: calendarSettingsSchema,
   extraClasses: z.array(extraClassSchema),
+  cancelledClasses: z.array(cancelledClassSchema),
   examDates: z.array(z.iso.date()),
   holidays: z.array(holidaySchema),
 });

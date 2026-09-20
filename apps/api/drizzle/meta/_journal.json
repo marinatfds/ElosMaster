@@ -43,6 +43,13 @@
       "when": 1789940786086,
       "tag": "0005_calendar_weekdays",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789942898076,
+      "tag": "0006_cancelled_classes",
+      "breakpoints": true
     }
   ]
 }

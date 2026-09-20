@@ -1,6 +1,8 @@
 import type {
   AnnualCalendarData,
   CalendarSettings,
+  CancelledClass,
+  CreateCancelledClassInput,
   CreateExtraClassInput,
   ExtraClass,
   UpdateAulaWeekdaysInput,
@@ -30,4 +32,13 @@ export async function createExtraClass(input: CreateExtraClassInput) {
 
 export async function deleteExtraClass(id: number) {
   await api.delete(`/calendar/extra-classes/${id}`);
+}
+
+export async function createCancelledClass(input: CreateCancelledClassInput) {
+  const { data } = await api.post<CancelledClass>("/calendar/cancelled-classes", input);
+  return data;
+}
+
+export async function deleteCancelledClass(id: number) {
+  await api.delete(`/calendar/cancelled-classes/${id}`);
 }
