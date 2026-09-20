@@ -11,7 +11,7 @@ import {
   unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
-import { NOTIFICATION_TYPES, PERIODS, ROLES, type ScheduleSlot } from "@elosmaster/shared";
+import { DEFAULT_AULA_WEEKDAYS, NOTIFICATION_TYPES, PERIODS, ROLES, type ScheduleSlot } from "@elosmaster/shared";
 
 export const roleEnum = pgEnum("role", ROLES);
 export const periodEnum = pgEnum("period", PERIODS);
@@ -134,6 +134,7 @@ export const calendarSettings = pgTable("calendar_settings", {
   id: id(),
   aulaStart: date(),
   aulaEnd: date(),
+  aulaWeekdays: integer().array().notNull().default(DEFAULT_AULA_WEEKDAYS),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 

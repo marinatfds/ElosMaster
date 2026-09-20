@@ -12,12 +12,12 @@ function parseISODate(iso: string): Date {
   return new Date(year, month - 1, day);
 }
 
-function getSaturdaysInRange(startIso: string, endIso: string): Date[] {
+function getClassDatesInRange(startIso: string, endIso: string, weekdays: number[]): Date[] {
   const cursor = parseISODate(startIso);
   const end = parseISODate(endIso);
   const dates: Date[] = [];
   while (cursor <= end) {
-    if (cursor.getDay() === 6) {
+    if (weekdays.includes(cursor.getDay())) {
       dates.push(new Date(cursor));
     }
     cursor.setDate(cursor.getDate() + 1);
@@ -42,9 +42,9 @@ export function AnnualCalendar() {
   const query = useQuery({ queryKey: ["calendar"], queryFn: getAnnualCalendar });
 
   const aulaDates = useMemo(() => {
-    const { aulaStart, aulaEnd } = query.data?.settings ?? { aulaStart: null, aulaEnd: null };
-    if (!aulaStart || !aulaEnd) return [];
-    return getSaturdaysInRange(aulaStart, aulaEnd);
+    const { aulaStart, aulaEnd, aulaWeekdays } = query.data?.settings ?? {};
+    if (!aulaStart || !aulaEnd || !aulaWeekdays) return [];
+    return getClassDatesInRange(aulaStart, aulaEnd, aulaWeekdays);
   }, [query.data]);
 
   const simuladoDates = useMemo(

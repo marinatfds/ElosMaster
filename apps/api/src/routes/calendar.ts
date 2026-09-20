@@ -1,7 +1,13 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
-import { createExtraClassSchema, updateCalendarSettingsSchema, type AnnualCalendarData } from "@elosmaster/shared";
+import {
+  createExtraClassSchema,
+  DEFAULT_AULA_WEEKDAYS,
+  updateAulaWeekdaysSchema,
+  updateCalendarSettingsSchema,
+  type AnnualCalendarData,
+} from "@elosmaster/shared";
 import { db } from "../db/client.js";
 import { calendarSettings, extraClasses, exams } from "../db/schema.js";
 import { authMiddleware } from "../middleware/auth.js";
@@ -23,7 +29,7 @@ calendarRoute.get("/", async (c) => {
   const holidays = await getHolidaysInRange(aulaStart, aulaEnd);
 
   const result: AnnualCalendarData = {
-    settings: { aulaStart, aulaEnd },
+    settings: { aulaStart, aulaEnd, aulaWeekdays: settingsRow?.aulaWeekdays ?? DEFAULT_AULA_WEEKDAYS },
     extraClasses: extraClassRows,
     examDates: examRows.map((row) => row.examDate),
     holidays,
@@ -48,7 +54,27 @@ calendarRoute.put(
           .returning()
       : await db.insert(calendarSettings).values(input).returning();
 
-    return c.json({ aulaStart: row.aulaStart, aulaEnd: row.aulaEnd });
+    return c.json({ aulaStart: row.aulaStart, aulaEnd: row.aulaEnd, aulaWeekdays: row.aulaWeekdays });
+  },
+);
+
+calendarRoute.put(
+  "/settings/weekdays",
+  requireRole("admin"),
+  zValidator("json", updateAulaWeekdaysSchema),
+  async (c) => {
+    const { aulaWeekdays } = c.req.valid("json");
+    const [existing] = await db.select().from(calendarSettings).limit(1);
+
+    const [row] = existing
+      ? await db
+          .update(calendarSettings)
+          .set({ aulaWeekdays, updatedAt: new Date() })
+          .where(eq(calendarSettings.id, existing.id))
+          .returning()
+      : await db.insert(calendarSettings).values({ aulaWeekdays }).returning();
+
+    return c.json({ aulaStart: row.aulaStart, aulaEnd: row.aulaEnd, aulaWeekdays: row.aulaWeekdays });
   },
 );
 

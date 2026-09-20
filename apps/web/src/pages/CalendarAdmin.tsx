@@ -13,6 +13,8 @@ import {
   ListItemText,
   Paper,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -23,12 +25,83 @@ import {
   type CreateExtraClassInput,
   type UpdateCalendarSettingsInput,
 } from "@elosmaster/shared";
-import { createExtraClass, deleteExtraClass, getAnnualCalendar, updateCalendarSettings } from "../api/calendar";
+import {
+  createExtraClass,
+  deleteExtraClass,
+  getAnnualCalendar,
+  updateAulaWeekdays,
+  updateCalendarSettings,
+} from "../api/calendar";
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeZone: "UTC" });
 
 function formatDate(iso: string) {
   return dateFormatter.format(new Date(`${iso}T00:00:00Z`));
+}
+
+// Valores seguem Date.getDay() (0 = domingo); a ordem exibida começa na segunda.
+const WEEKDAY_OPTIONS = [
+  { value: 1, short: "Seg", label: "Segunda-feira" },
+  { value: 2, short: "Ter", label: "Terça-feira" },
+  { value: 3, short: "Qua", label: "Quarta-feira" },
+  { value: 4, short: "Qui", label: "Quinta-feira" },
+  { value: 5, short: "Sex", label: "Sexta-feira" },
+  { value: 6, short: "Sáb", label: "Sábado" },
+  { value: 0, short: "Dom", label: "Domingo" },
+];
+
+function DiasFuncionamentoForm({ weekdays }: { weekdays: number[] }) {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+  const [selected, setSelected] = useState(weekdays);
+
+  const mutation = useMutation({
+    mutationFn: updateAulaWeekdays,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["calendar"] });
+      enqueueSnackbar("Dias de funcionamento atualizados", { variant: "success" });
+    },
+    onError: () => enqueueSnackbar("Não foi possível salvar os dias de funcionamento", { variant: "error" }),
+  });
+
+  return (
+    <Paper
+      component="form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        mutation.mutate({ aulaWeekdays: selected });
+      }}
+      sx={{ p: 3, display: "flex", flexDirection: "column", gap: 2 }}
+    >
+      <Typography variant="h6">Dias de funcionamento</Typography>
+      <Typography variant="body2" color="text.secondary">
+        Selecione os dias da semana em que a escola funciona. Apenas esses dias serão marcados como aulas.
+      </Typography>
+      <ToggleButtonGroup
+        color="primary"
+        value={selected}
+        onChange={(_, days: number[]) => setSelected(days)}
+        aria-label="Dias de funcionamento"
+        sx={{ flexWrap: "wrap" }}
+      >
+        {WEEKDAY_OPTIONS.map((day) => (
+          <ToggleButton key={day.value} value={day.value} aria-label={day.label} sx={{ px: 2 }}>
+            {day.short}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
+      {selected.length === 0 && (
+        <Typography variant="caption" color="error">
+          Selecione ao menos um dia de funcionamento.
+        </Typography>
+      )}
+      <Box>
+        <Button type="submit" variant="contained" disabled={selected.length === 0 || mutation.isPending}>
+          Salvar
+        </Button>
+      </Box>
+    </Paper>
+  );
 }
 
 function AulasForm({ settings }: { settings: CalendarSettings }) {
@@ -64,7 +137,7 @@ function AulasForm({ settings }: { settings: CalendarSettings }) {
     >
       <Typography variant="h6">Aulas</Typography>
       <Typography variant="body2" color="text.secondary">
-        Todos os sábados entre as datas abaixo serão marcados como aulas no calendário anual.
+        Todos os dias de funcionamento entre as datas abaixo serão marcados como aulas no calendário anual.
       </Typography>
       <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
         <TextField
@@ -229,6 +302,10 @@ export function CalendarAdmin() {
 
       {query.data && (
         <>
+          <DiasFuncionamentoForm
+            key={query.data.settings.aulaWeekdays.join(",")}
+            weekdays={query.data.settings.aulaWeekdays}
+          />
           <AulasForm key={`${query.data.settings.aulaStart}-${query.data.settings.aulaEnd}`} settings={query.data.settings} />
           <AulasExtrasList extraClasses={query.data.extraClasses} />
           <SimuladosPreview examDates={query.data.examDates} />

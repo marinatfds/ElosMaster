@@ -1,0 +1,1 @@
+ALTER TABLE "calendar_settings" ADD COLUMN "aulaWeekdays" integer[] DEFAULT '{6}' NOT NULL;

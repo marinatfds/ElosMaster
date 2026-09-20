@@ -1,8 +1,14 @@
 import { z } from "zod";
 
+// Mesma convenção de Date.getDay(): 0 = domingo ... 6 = sábado.
+export const DEFAULT_AULA_WEEKDAYS = [6];
+
+const weekdaySchema = z.number().int().min(0).max(6);
+
 export const calendarSettingsSchema = z.object({
   aulaStart: z.iso.date().nullable(),
   aulaEnd: z.iso.date().nullable(),
+  aulaWeekdays: z.array(weekdaySchema),
 });
 
 export type CalendarSettings = z.infer<typeof calendarSettingsSchema>;
@@ -18,6 +24,15 @@ export const updateCalendarSettingsSchema = z
   });
 
 export type UpdateCalendarSettingsInput = z.infer<typeof updateCalendarSettingsSchema>;
+
+export const updateAulaWeekdaysSchema = z.object({
+  aulaWeekdays: z
+    .array(weekdaySchema)
+    .min(1, "Selecione ao menos um dia de funcionamento")
+    .transform((days) => [...new Set(days)].sort((a, b) => a - b)),
+});
+
+export type UpdateAulaWeekdaysInput = z.input<typeof updateAulaWeekdaysSchema>;
 
 export const createExtraClassSchema = z.object({
   date: z.iso.date(),

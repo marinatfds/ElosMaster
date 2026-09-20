@@ -3,6 +3,7 @@ import type {
   CalendarSettings,
   CreateExtraClassInput,
   ExtraClass,
+  UpdateAulaWeekdaysInput,
   UpdateCalendarSettingsInput,
 } from "@elosmaster/shared";
 import { api } from "./client";
@@ -14,6 +15,11 @@ export async function getAnnualCalendar() {
 
 export async function updateCalendarSettings(input: UpdateCalendarSettingsInput) {
   const { data } = await api.put<CalendarSettings>("/calendar/settings", input);
+  return data;
+}
+
+export async function updateAulaWeekdays(input: UpdateAulaWeekdaysInput) {
+  const { data } = await api.put<CalendarSettings>("/calendar/settings/weekdays", input);
   return data;
 }
 
