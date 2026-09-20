@@ -14,6 +14,7 @@ import {
   IconButton,
   MenuItem,
   Paper,
+  Switch,
   Tab,
   Table,
   TableBody,
@@ -211,7 +212,7 @@ function RosterTab() {
     if (rosterQuery.data) {
       const initial: Record<number, { present: boolean; comment: string }> = {};
       for (const row of rosterQuery.data) {
-        initial[row.studentId] = { present: row.present ?? false, comment: row.comment ?? "" };
+        initial[row.studentId] = { present: row.present ?? true, comment: row.comment ?? "" };
       }
       setState(initial);
     }
@@ -281,7 +282,7 @@ function RosterTab() {
             <TableHead>
               <TableRow>
                 <TableCell>Aluno</TableCell>
-                <TableCell width={100}>Presente</TableCell>
+                <TableCell width={100}>Presença</TableCell>
                 <TableCell>Observação</TableCell>
               </TableRow>
             </TableHead>
@@ -290,8 +291,8 @@ function RosterTab() {
                 <TableRow key={row.studentId}>
                   <TableCell>{row.studentName}</TableCell>
                   <TableCell>
-                    <Checkbox
-                      checked={state[row.studentId]?.present ?? false}
+                    <Switch
+                      checked={state[row.studentId]?.present ?? true}
                       onChange={(e) =>
                         setState((prev) => ({
                           ...prev,
@@ -308,7 +309,7 @@ function RosterTab() {
                       onChange={(e) =>
                         setState((prev) => ({
                           ...prev,
-                          [row.studentId]: { present: prev[row.studentId]?.present ?? false, comment: e.target.value },
+                          [row.studentId]: { present: prev[row.studentId]?.present ?? true, comment: e.target.value },
                         }))
                       }
                     />
