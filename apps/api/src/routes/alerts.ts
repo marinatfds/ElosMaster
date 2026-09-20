@@ -26,7 +26,7 @@ alertsRoute.post("/", requireRole("admin", "coordinator"), zValidator("json", cr
     .values({ ...input, createdBy: user.id })
     .returning();
 
-  await publishNotification(null, "alert_created", `Novo alerta: ${alert.message}`);
+  await publishNotification(null, "alert_created", alert.message);
 
   return c.json(alert, 201);
 });
