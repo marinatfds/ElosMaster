@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link as RouterLink } from "react-router-dom";
 import { Autocomplete, Box, Button, IconButton, MenuItem, Paper, TextField, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import {
@@ -12,7 +13,9 @@ import {
   computeSlotTime,
   createScheduleSchema,
   type CreateScheduleInput,
+  type Schedule,
 } from "@elosmaster/shared";
+import { listSchedules } from "../api/schedules";
 import { listTeamMembers } from "../api/team";
 import { useCampuses } from "../hooks/useCampuses";
 
@@ -30,11 +33,25 @@ type ScheduleFormProps = {
   initialValues: CreateScheduleInput;
   isSubmitting: boolean;
   onSubmit: (input: CreateScheduleInput) => void;
+  allowCopyLast?: boolean;
 };
 
-export function ScheduleForm({ title, submitLabel, initialValues, isSubmitting, onSubmit }: ScheduleFormProps) {
+export function ScheduleForm({
+  title,
+  submitLabel,
+  initialValues,
+  isSubmitting,
+  onSubmit,
+  allowCopyLast = false,
+}: ScheduleFormProps) {
   const teamQuery = useQuery({ queryKey: ["team"], queryFn: listTeamMembers });
   const teamMembers = teamQuery.data ?? [];
+
+  const schedulesQuery = useQuery({ queryKey: ["schedules"], queryFn: listSchedules, enabled: allowCopyLast });
+  const lastSchedule = schedulesQuery.data?.reduce<Schedule | undefined>(
+    (latest, current) => (!latest || current.id > latest.id ? current : latest),
+    undefined,
+  );
 
   const {
     register,
@@ -49,7 +66,7 @@ export function ScheduleForm({ title, submitLabel, initialValues, isSubmitting, 
     defaultValues: initialValues,
   });
 
-  const { fields, append, remove } = useFieldArray({ control, name: "slots" });
+  const { fields, append, remove, replace } = useFieldArray({ control, name: "slots" });
 
   const campus = watch("campus");
   const slots = watch("slots");
@@ -84,6 +101,12 @@ export function ScheduleForm({ title, submitLabel, initialValues, isSubmitting, 
   function handleActivityChange(index: number, activityName: string) {
     setValue(`slots.${index}.name`, activityName as ScheduleSlotInput["name"], { shouldValidate: true });
     recomputeTimes(getValues("slots"));
+  }
+
+  // Copia os horários do último cadastro; o núcleo e a data escolhidos no formulário são mantidos.
+  function handleCopyLast() {
+    if (!lastSchedule) return;
+    replace(lastSchedule.slots.map((slot) => ({ ...slot })));
   }
 
   function handleAddSlot() {
@@ -135,9 +158,22 @@ export function ScheduleForm({ title, submitLabel, initialValues, isSubmitting, 
           )}
         />
 
-        <Typography variant="subtitle1" sx={{ mt: 1 }}>
-          Horários ({fields.length}/{TOTAL_SLOTS})
-        </Typography>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2, mt: 1 }}>
+          <Typography variant="subtitle1">
+            Horários ({fields.length}/{TOTAL_SLOTS})
+          </Typography>
+          {allowCopyLast && (
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<ContentCopyIcon />}
+              onClick={handleCopyLast}
+              disabled={!lastSchedule}
+            >
+              Copiar último horário cadastrado
+            </Button>
+          )}
+        </Box>
 
         {fields.map((field, index) => {
           const slot = slots[index];

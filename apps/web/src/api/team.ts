@@ -20,3 +20,7 @@ export async function updateTeamMember(id: number, input: UpdateTeamMemberInput)
   const { data } = await api.put<TeamMember>(`/team/${id}`, input);
   return data;
 }
+
+export async function deleteTeamMember(id: number) {
+  await api.delete(`/team/${id}`);
+}

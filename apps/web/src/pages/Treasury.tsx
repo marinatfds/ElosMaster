@@ -22,12 +22,14 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { useSnackbar } from "notistack";
 import type { Charge } from "@elosmaster/shared";
 import { DateRangeFilter } from "../components/DateRangeFilter";
 import { deleteCharge, listCharges } from "../api/charges";
 import { getFinanceiroUrl } from "../api/reports";
+import { downloadCsv } from "../utils/csv";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" });
@@ -47,6 +49,18 @@ export function Treasury() {
     if (dateTo && charge.paymentDate > dateTo) return false;
     return true;
   });
+
+  const handleExportCsv = () => {
+    const headers = ["Tipo", "Descrição", "Autor", "Valor", "Data de pagamento"];
+    const csvRows = rows.map((charge) => [
+      charge.expenseType,
+      charge.description,
+      charge.author,
+      currencyFormatter.format(charge.value),
+      dateFormatter.format(new Date(charge.paymentDate)),
+    ]);
+    downloadCsv(`despesas-${new Date().toISOString().slice(0, 10)}.csv`, headers, csvRows);
+  };
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deleteCharge(id),
@@ -85,6 +99,14 @@ export function Treasury() {
             startIcon={<PictureAsPdfIcon />}
           >
             Extrato em PDF
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<FileDownloadIcon />}
+            onClick={handleExportCsv}
+            disabled={rows.length === 0}
+          >
+            Exportar CSV
           </Button>
           <Button component={RouterLink} to="/tesouraria/nova" variant="contained">
             Nova Despesa

@@ -26,6 +26,7 @@ export function NewSchedule() {
       title="Novo Horário"
       submitLabel="Salvar"
       isSubmitting={mutation.isPending}
+      allowCopyLast
       initialValues={{ campus: "", date: "", slots: [createEmptySlot()] }}
       onSubmit={(input) => mutation.mutate(input)}
     />

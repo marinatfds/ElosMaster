@@ -1,9 +1,14 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link as RouterLink } from "react-router-dom";
 import {
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   IconButton,
   MenuItem,
   Paper,
@@ -17,20 +22,75 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import type { Campus } from "@elosmaster/shared";
-import { listTeamMembers } from "../api/team";
+import { useSnackbar } from "notistack";
+import { isAxiosError } from "axios";
+import type { Campus, TeamMember } from "@elosmaster/shared";
+import { deleteTeamMember, listTeamMembers } from "../api/team";
 import { listTeamPositions } from "../api/team-positions";
 import { useCampuses } from "../hooks/useCampuses";
 import { useAuth } from "../auth/AuthContext";
 
 const ALL = "all";
 
+function errorMessage(err: unknown, fallback: string) {
+  if (isAxiosError(err) && typeof err.response?.data?.error === "string") {
+    return err.response.data.error;
+  }
+  return fallback;
+}
+
+function DeleteMemberDialog({ member, onClose }: { member: TeamMember | null; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const mutation = useMutation({
+    mutationFn: (id: number) => deleteTeamMember(id),
+    onSuccess: () => {
+      enqueueSnackbar("Membro removido com sucesso", { variant: "success" });
+      onClose();
+    },
+    onError: (err) => {
+      enqueueSnackbar(errorMessage(err, "Não foi possível remover o membro"), { variant: "error" });
+      onClose();
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["team"] });
+    },
+  });
+
+  return (
+    <Dialog open={member !== null} onClose={onClose}>
+      <DialogTitle>Remover membro</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Tem certeza que deseja remover <strong>{member?.name}</strong> da equipe?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} disabled={mutation.isPending}>
+          Cancelar
+        </Button>
+        <Button
+          color="error"
+          variant="contained"
+          disabled={mutation.isPending}
+          onClick={() => member && mutation.mutate(member.id)}
+        >
+          Remover
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 export function Team() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [campusFilter, setCampusFilter] = useState<Campus | typeof ALL>(ALL);
   const [positionFilter, setPositionFilter] = useState<string>(ALL);
+  const [deleteTarget, setDeleteTarget] = useState<TeamMember | null>(null);
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
 
@@ -124,7 +184,7 @@ export function Team() {
                     <TableCell>{member.email}</TableCell>
                     <TableCell>{member.phone}</TableCell>
                     {isAdmin && (
-                      <TableCell>
+                      <TableCell sx={{ whiteSpace: "nowrap" }}>
                         <IconButton
                           component={RouterLink}
                           to={`/equipe/${member.id}/editar`}
@@ -132,6 +192,9 @@ export function Team() {
                           aria-label="Editar"
                         >
                           <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" aria-label="Remover" onClick={() => setDeleteTarget(member)}>
+                          <DeleteIcon fontSize="small" />
                         </IconButton>
                       </TableCell>
                     )}
@@ -154,6 +217,8 @@ export function Team() {
           />
         </Paper>
       )}
+
+      <DeleteMemberDialog member={deleteTarget} onClose={() => setDeleteTarget(null)} />
     </Box>
   );
 }

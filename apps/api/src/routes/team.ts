@@ -83,4 +83,13 @@ teamRoute.put("/:id", requireRole("admin"), zValidator("json", updateTeamMemberS
   }
 });
 
+teamRoute.delete("/:id", requireRole("admin"), async (c) => {
+  const id = Number(c.req.param("id"));
+  const [member] = await db.delete(teamMembers).where(eq(teamMembers.id, id)).returning();
+  if (!member) {
+    return c.json({ error: "Membro não encontrado" }, 404);
+  }
+  return c.body(null, 204);
+});
+
 export default teamRoute;
