@@ -13,3 +13,7 @@ export const alertSchema = createAlertSchema.extend({
 });
 
 export type Alert = z.infer<typeof alertSchema>;
+
+export const updateAlertSchema = createAlertSchema;
+
+export type UpdateAlertInput = z.infer<typeof updateAlertSchema>;

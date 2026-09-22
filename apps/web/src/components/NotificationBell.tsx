@@ -7,23 +7,27 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   Divider,
   Drawer,
   IconButton,
   List,
+  ListItem,
   ListItemButton,
   ListItemText,
   TextField,
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useSnackbar } from "notistack";
 import { createAlertSchema, type CreateAlertInput } from "@elosmaster/shared";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createAlert } from "../api/alerts";
+import { createAlert, deleteAlert, updateAlert } from "../api/alerts";
 import { useAuth } from "../auth/AuthContext";
 import { useNotifications } from "../hooks/useNotifications";
 
@@ -80,11 +84,108 @@ function NewAlertDialog({ open, onClose }: { open: boolean; onClose: () => void 
   );
 }
 
+type AlertActionTarget = { id: number; message: string };
+
+function EditAlertDialog({ alert, onClose }: { alert: AlertActionTarget | null; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateAlertInput>({
+    resolver: zodResolver(createAlertSchema),
+    values: { message: alert?.message ?? "" },
+  });
+
+  const mutation = useMutation({
+    mutationFn: (input: CreateAlertInput) => updateAlert(alert!.id, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["alerts"] });
+      enqueueSnackbar("Alerta atualizado com sucesso", { variant: "success" });
+      reset();
+      onClose();
+    },
+    onError: () => {
+      enqueueSnackbar("Não foi possível atualizar o alerta", { variant: "error" });
+    },
+  });
+
+  return (
+    <Dialog open={alert !== null} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>Editar alerta</DialogTitle>
+      <Box component="form" onSubmit={handleSubmit((input) => mutation.mutate(input))}>
+        <DialogContent>
+          <TextField
+            label="Mensagem"
+            fullWidth
+            multiline
+            minRows={3}
+            error={!!errors.message}
+            helperText={errors.message?.message}
+            {...register("message")}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancelar</Button>
+          <Button type="submit" variant="contained" disabled={isSubmitting}>
+            Salvar
+          </Button>
+        </DialogActions>
+      </Box>
+    </Dialog>
+  );
+}
+
+function DeleteAlertDialog({ alert, onClose }: { alert: AlertActionTarget | null; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const { enqueueSnackbar } = useSnackbar();
+
+  const mutation = useMutation({
+    mutationFn: (id: number) => deleteAlert(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["alerts"] });
+      enqueueSnackbar("Alerta removido com sucesso", { variant: "success" });
+      onClose();
+    },
+    onError: () => {
+      enqueueSnackbar("Não foi possível remover o alerta", { variant: "error" });
+    },
+  });
+
+  return (
+    <Dialog open={alert !== null} onClose={onClose}>
+      <DialogTitle>Remover alerta</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Tem certeza que deseja remover o alerta "{alert?.message}"? Esta ação não pode ser desfeita.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} disabled={mutation.isPending}>
+          Cancelar
+        </Button>
+        <Button
+          color="error"
+          variant="contained"
+          onClick={() => alert && mutation.mutate(alert.id)}
+          disabled={mutation.isPending}
+        >
+          Remover
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 export function NotificationBell() {
   const { user } = useAuth();
   const { notifications, unreadCount, markAsRead } = useNotifications();
   const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [alertToEdit, setAlertToEdit] = useState<AlertActionTarget | null>(null);
+  const [alertToDelete, setAlertToDelete] = useState<AlertActionTarget | null>(null);
 
   const canCreateAlert = user?.role === "admin";
 
@@ -123,22 +224,54 @@ export function NotificationBell() {
             </Typography>
           )}
           <List sx={{ overflowY: "auto" }}>
-            {notifications.map((notification) => (
-              <ListItemButton
-                key={notification.id}
-                onClick={() => !notification.read && markAsRead(notification.id)}
-                sx={{ bgcolor: notification.read ? "transparent" : "action.hover" }}
-              >
-                <ListItemText
-                  primary={String(notification.payload.message ?? "")}
-                  secondary={formatDateTime(notification.createdAt)}
-                />
-              </ListItemButton>
-            ))}
+            {notifications.map((notification) => {
+              const alertId = notification.type === "alert_created" ? Number(notification.payload.alertId) : NaN;
+              const canManage =
+                !Number.isNaN(alertId) && !!user && notification.payload.createdBy === user.id;
+              const message = String(notification.payload.message ?? "");
+
+              return (
+                <ListItem
+                  key={notification.id}
+                  disablePadding
+                  secondaryAction={
+                    canManage && (
+                      <>
+                        <IconButton
+                          edge="end"
+                          size="small"
+                          aria-label="Editar"
+                          onClick={() => setAlertToEdit({ id: alertId, message })}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          edge="end"
+                          size="small"
+                          aria-label="Remover"
+                          onClick={() => setAlertToDelete({ id: alertId, message })}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </>
+                    )
+                  }
+                >
+                  <ListItemButton
+                    onClick={() => !notification.read && markAsRead(notification.id)}
+                    sx={{ bgcolor: notification.read ? "transparent" : "action.hover", pr: canManage ? 10 : 2 }}
+                  >
+                    <ListItemText primary={message} secondary={formatDateTime(notification.createdAt)} />
+                  </ListItemButton>
+                </ListItem>
+              );
+            })}
           </List>
         </Box>
       </Drawer>
       {canCreateAlert && <NewAlertDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />}
+      <EditAlertDialog alert={alertToEdit} onClose={() => setAlertToEdit(null)} />
+      <DeleteAlertDialog alert={alertToDelete} onClose={() => setAlertToDelete(null)} />
     </>
   );
 }

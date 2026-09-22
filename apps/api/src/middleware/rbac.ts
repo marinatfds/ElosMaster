@@ -16,3 +16,8 @@ export function requireRole(...roles: Role[]) {
 export function canAccessStudent(user: CurrentUser, studentId: number) {
   return user.role !== "volunteer" || user.studentId === studentId;
 }
+
+/** only the alert's author can edit or delete it. */
+export function isAlertAuthor(user: CurrentUser, alert: { createdBy: number }) {
+  return alert.createdBy === user.id;
+}
